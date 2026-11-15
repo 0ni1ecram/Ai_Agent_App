@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<!-- saved from url=(0058)https://ldqrg4ym.qwenwork.page/decks/kurta-wireframes.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>body {transition: opacity ease-in 0.2s; } 
+body[unresolved] {opacity: 0; display: block; overflow: hidden; position: relative; } 
+</style><script>var __mr='footer',__md='ldqrg4ym.qwenwork.page';document.addEventListener('DOMContentLoaded', function () {
+  var BAR_HEIGHT = 48;
+  var BRAND_URL = 'https://qwenwork.ai/';
+  // 品牌资源直接引用官网上的国际版资产（与 CN 版引用 CDN 图片的做法一致）：注入脚本会
+  // 进到每个用户页面，内联 data URI 会让每个 HTML 响应都多背十几 KB。
+  var LOGO_URL = 'https://qwenwork.ai/assets/website-global/qwenwork-logo.svg';
+  var FAVICON_URL = 'https://qwenwork.ai/app/favicon.svg';
+  var isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+  if (!isDark) {
+    try {
+      var sample = getComputedStyle(document.body).backgroundColor;
+      if (sample === 'rgba(0, 0, 0, 0)' || sample === 'transparent') {
+        sample = getComputedStyle(document.documentElement).backgroundColor;
+      }
+      if (sample && sample !== 'rgba(0, 0, 0, 0)' && sample !== 'transparent') {
+        var m = sample.match(/\d+/g);
+        if (m) {
+          var brightness = (parseInt(m[0]) * 299 + parseInt(m[1]) * 587 + parseInt(m[2]) * 114) / 1000;
+          isDark = brightness < 128;
+        }
+      }
+    } catch (e) {}
+  }
+
+  var SHARED_CSS = '<style>' +
+    '.mulepage-close-dark{color:rgba(255,255,255,0.3);transition:color 0.2s ease}' +
+    '.mulepage-close-dark:hover{color:#ffffff}' +
+    '.mulepage-close-light{color:rgba(0,0,0,0.3);transition:color 0.2s ease}' +
+    '.mulepage-close-light:hover{color:#000000}' +
+    '#mulepage-footer-link{display:inline-flex;align-items:center;line-height:0;outline:none}' +
+    '.mulepage-footer-brand{display:inline-flex;align-items:center;box-sizing:border-box;height:32px;max-width:156px;overflow:hidden;padding:4px 12px;border-radius:999px;background:' + (isDark ? 'rgba(26,26,26,0.85)' : 'rgba(255,255,255,0.85)') + ';backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 0 0 0.5px ' + (isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)') + ',0 8px 24px -4px ' + (isDark ? 'rgba(0,0,0,0.28)' : 'rgba(0,0,0,0.07)') + ';transition:max-width 260ms cubic-bezier(0.22,1,0.36,1);will-change:max-width;white-space:nowrap}' +
+    '.mulepage-footer-brand-hint{display:inline-block;max-width:0;margin-left:0;overflow:hidden;opacity:0;color:' + (isDark ? 'rgba(255,255,255,0.72)' : 'rgba(0,0,0,0.64)') + ';font-size:14px;font-weight:400;line-height:20px;transition:max-width 260ms cubic-bezier(0.22,1,0.36,1),margin-left 260ms cubic-bezier(0.22,1,0.36,1),opacity 180ms ease-out;will-change:max-width,opacity}' +
+    '#mulepage-footer:hover .mulepage-footer-brand,#mulepage-footer:focus-within .mulepage-footer-brand{max-width:360px}' +
+    '#mulepage-footer:hover .mulepage-footer-brand-hint,#mulepage-footer:focus-within .mulepage-footer-brand-hint{max-width:188px;margin-left:8px;opacity:1}' +
+    '.mulepage-float-close{display:inline-flex;align-items:center;justify-content:center;max-width:0;margin-left:0;overflow:hidden;opacity:0;transition:max-width 0.2s ease,margin-left 0.2s ease,opacity 0.15s ease;padding:0;border:none;background:none;cursor:pointer;font-size:16px;line-height:1;font-weight:300;height:16px;will-change:max-width,opacity}' +
+    '.mulepage-float:hover .mulepage-float-close{max-width:14px;margin-left:4px;opacity:1}' +
+    '</style>';
+  document.head.insertAdjacentHTML('beforeend', SHARED_CSS);
+
+  var brandAssetFilter = isDark ? 'filter:invert(1);' : '';
+  var BRAND_MARK = '<img src="' + LOGO_URL + '" alt="QwenWork" width="132" height="24" style="display:block;user-select:none;' + brandAssetFilter + '" />';
+  var TOP_BRAND_LOGO = '<span style="display:inline-flex;align-items:center;justify-content:center;width:156px;height:32px;padding:4px 12px;box-sizing:border-box;border-radius:999px;' +
+    'background:' + (isDark ? 'rgba(255,255,255,0.12)' : '#f5f5f5') + ';">' + BRAND_MARK + '</span>';
+  var FOOTER_BRAND_LOGO = '<span class="mulepage-footer-brand">' + BRAND_MARK +
+    '<span class="mulepage-footer-brand-hint">AI-generated. Please verify.</span></span>';
+
+  var bannerBg = isDark ? '#050505' : '#ffffff';
+  var bannerBorder = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+  var bannerColor = isDark ? '#fff' : '#000';
+  var bannerDividerColor = isDark ? 'rgba(255,255,255,0.24)' : 'rgba(0,0,0,0.16)';
+  var bannerCloseClass = isDark ? 'mulepage-close-dark' : 'mulepage-close-light';
+
+  var BANNER = '<div id="mulepage-bar" dir="ltr" style="position:fixed;top:0;left:0;width:100%;height:' + BAR_HEIGHT + 'px;' +
+    'background:' + bannerBg + ';border-bottom:1px solid ' + bannerBorder + ';color:' + bannerColor + ';' +
+    'box-sizing:border-box;display:flex;align-items:center;gap:8px;padding:8px;' +
+    'font-family:Inter,-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif;' +
+    'font-size:14px;font-weight:500;line-height:20px;z-index:2147483647;">' +
+    '<span aria-hidden="true" style="flex:1 1 0;height:32px;"></span>' +
+    '<div style="display:flex;align-items:center;gap:8px;white-space:nowrap;">' +
+    '<span>Created with</span>' +
+    '<span id="mulepage-bar-link" role="link" tabindex="0" aria-label="Open QwenWork" style="display:inline-flex;align-items:center;cursor:pointer;line-height:0;">' +
+    TOP_BRAND_LOGO + '</span>' +
+    '<span aria-hidden="true" style="width:1px;height:16px;margin:0 4px;background:' + bannerDividerColor + ';"></span>' +
+    '<span id="mulepage-bar-cta" role="link" tabindex="0" aria-label="Create a website with QwenWork" style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:999px;cursor:pointer;">' +
+    '<span>Create your website with AI</span><span aria-hidden="true" style="font-size:16px;line-height:16px;">\u2192</span></span>' +
+    '</div>' +
+    '<span style="flex:1 1 0;display:flex;justify-content:flex-end;align-items:center;">' +
+    '<button id="mulepage-bar-close" class="' + bannerCloseClass + '" aria-label="Close QwenWork branding bar" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;padding:8px;background:none;border:none;border-radius:999px;' +
+    'font-size:18px;cursor:pointer;line-height:16px;font-weight:300;">\u00d7</button></span>' +
+    '</div>';
+
+  var floatCloseColor = isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.3)';
+  var floatCloseHover = isDark ? '#ffffff' : '#000000';
+  var FOOTER = '<div id="mulepage-footer" dir="ltr" class="mulepage-float" style="position:fixed !important;bottom:16px !important;right:16px !important;z-index:2147483646;' +
+    'display:inline-flex;align-items:center;padding:0;cursor:pointer;background:transparent;border:0;box-shadow:none;' +
+    'font-family:Inter,-apple-system,BlinkMacSystemFont,\'Segoe UI\',\'Helvetica Neue\',sans-serif;">' +
+    '<span id="mulepage-footer-link" role="link" tabindex="0" aria-label="Open QwenWork" style="display:inline-flex;align-items:center;line-height:0;">' +
+    FOOTER_BRAND_LOGO + '</span></div>';
+
+  var openQwenWork = function (content) {
+    window.open(BRAND_URL + '?utm_source=pages&utm_medium=banner&utm_campaign=pages_branding&utm_content=' + content, '_blank', 'noopener');
+  };
+  var bindActivation = function (element, content) {
+    if (!element) return;
+    element.addEventListener('click', function () { openQwenWork(content); });
+    element.addEventListener('keydown', function (event) {
+      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openQwenWork(content); }
+    });
+  };
+
+  if (__mr === 'all') {
+    document.body.insertAdjacentHTML('afterbegin', BANNER);
+    bindActivation(document.getElementById('mulepage-bar-link'), 'top_bar');
+    bindActivation(document.getElementById('mulepage-bar-cta'), 'top_bar');
+
+    var existingIcon = document.querySelector('link[rel="icon"],link[rel="shortcut icon"]');
+    if (!existingIcon) {
+      var fi = document.createElement('link');
+      fi.rel = 'icon';
+      fi.type = 'image/svg+xml';
+      fi.href = FAVICON_URL;
+      document.head.appendChild(fi);
+    }
+
+    var origPT = parseFloat(getComputedStyle(document.body).paddingTop) || 0;
+    document.body.style.paddingTop = (origPT + BAR_HEIGHT) + 'px';
+    var all = document.querySelectorAll('*');
+    var shifted = [];
+    for (var i = 0; i < all.length; i++) {
+      var el = all[i];
+      if (el.id && el.id.indexOf('mulepage') === 0) continue;
+      var cs = getComputedStyle(el);
+      if (cs.position === 'fixed') {
+        var t = parseFloat(cs.top);
+        if (isNaN(t)) t = 0;
+        el.style.top = (t + BAR_HEIGHT) + 'px';
+        shifted.push({ el: el, orig: t });
+      }
+    }
+    document.getElementById('mulepage-bar-close').addEventListener('click', function () {
+      document.getElementById('mulepage-bar').remove();
+      document.body.style.paddingTop = origPT + 'px';
+      for (var j = 0; j < shifted.length; j++) shifted[j].el.style.top = shifted[j].orig + 'px';
+    });
+  }
+
+  if (__mr) {
+    document.body.insertAdjacentHTML('beforeend', FOOTER);
+    bindActivation(document.getElementById('mulepage-footer-link'), 'bottom_bar');
+    if (__mr === 'footer') {
+      var floatEl = document.getElementById('mulepage-footer');
+      if (floatEl) {
+        var closeBtn = document.createElement('button');
+        closeBtn.className = 'mulepage-float-close';
+        closeBtn.style.color = floatCloseColor;
+        closeBtn.setAttribute('aria-label', 'Close QwenWork badge');
+        closeBtn.textContent = '\u00d7';
+        closeBtn.addEventListener('mouseenter', function () { closeBtn.style.color = floatCloseHover; });
+        closeBtn.addEventListener('mouseleave', function () { closeBtn.style.color = floatCloseColor; });
+        closeBtn.addEventListener('click', function (event) { event.stopPropagation(); floatEl.remove(); });
+        floatEl.appendChild(closeBtn);
+      }
+    }
+  }
+
+  var canon = document.createElement('link');
+  canon.rel = 'canonical';
+  canon.href = 'https://' + location.hostname + '/';
+  document.head.appendChild(canon);
+
+  var ogDomain = __md;
+  var ogTitle = document.title || ogDomain;
+  var ogTags = [
+    ['og:title', ogTitle],
+    ['og:url', 'https://' + location.hostname + '/'],
+    ['og:type', 'website'],
+    ['og:image', 'https://qwenwork.page/og/' + ogDomain + '.webp']
+  ];
+  for (var n = 0; n < ogTags.length; n++) {
+    var existing = document.querySelector('meta[property="' + ogTags[n][0] + '"]');
+    if (existing) existing.remove();
+    var meta = document.createElement('meta');
+    meta.setAttribute('property', ogTags[n][0]);
+    meta.setAttribute('content', ogTags[n][1]);
+    document.head.appendChild(meta);
+  }
+});
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KURTA — business agent platform · wireframes v0.1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link href="./KURTA — business agent platform · wireframes v0.1_files/css2" rel="stylesheet">
+<style>
+:root{
+  --paper:#e8e8e3; --dot:#d2d2cb; --ink:#1b1b1a; --line:#70706c;
+  --hatch:#c3c3bd; --ghost:#ececeb; --anno:#2c5fce;
+  --mono:"IBM Plex Mono",monospace; --sans:"Inter",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);
+  background-image:radial-gradient(var(--dot) 1px,transparent 1px);background-size:22px 22px}
+.board{max-width:1560px;margin:0 auto;padding:56px 40px 90px}
+.decknav{position:fixed;top:14px;right:18px;z-index:9;display:flex;gap:8px}
+.decknav a{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--ink);
+  background:#fff;border:1.5px solid var(--ink);border-radius:7px;padding:5px 9px;text-decoration:none}
+.decknav a.cur{background:var(--ink);color:#fff}
+
+/* header */
+.kicker{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--line)}
+h1{font-size:clamp(28px,4vw,44px);font-weight:800;letter-spacing:-.02em;margin:10px 0 6px}
+h1 .ver{font-family:var(--mono);font-size:.42em;font-weight:500;background:var(--ink);color:#fff;padding:5px 9px;border-radius:6px;vertical-align:middle;margin-left:12px}
+.lede{font-family:var(--mono);font-size:13px;color:var(--line);max-width:82ch;line-height:1.65}
+.pillars{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0 6px}
+.pillars b{font-family:var(--mono);font-size:11px;font-weight:500;border:1.5px solid var(--ink);border-radius:99px;padding:6px 13px;background:#fff}
+.pillars b u{text-decoration:none;color:var(--anno)}
+.flowkey{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin:16px 0 8px;font-family:var(--mono);font-size:10.5px}
+.flowkey a{color:inherit;text-decoration:none}
+.flowkey b{border:1.5px solid var(--ink);border-radius:6px;padding:4px 8px;background:#fff;font-weight:500}
+.flowkey .fa{color:var(--line)}
+.legend{font-family:var(--mono);font-size:11px;color:var(--line);margin-top:10px}
+
+/* grid + figures */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(660px,100%),1fr));gap:60px 44px;margin-top:48px;max-width:100%}
+@media (max-width:760px){.board{padding:36px 18px 70px}.win{height:auto;min-height:500px}}
+figure.screen{min-width:0}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--anno);margin-bottom:4px}
+figure.screen h3{font-size:15px;font-weight:600;margin-bottom:14px}
+.notes{margin-top:16px;list-style:none;display:flex;flex-direction:column;gap:8px}
+.notes li{font-family:var(--mono);font-size:11px;line-height:1.55;color:#4c4c48;display:flex;gap:9px}
+.notes .n{flex:0 0 17px;height:17px;border-radius:50%;border:1.5px solid var(--anno);color:var(--anno);
+  font-size:10px;display:inline-flex;align-items:center;justify-content:center;margin-top:1px}
+
+/* desktop window frame */
+.win{position:relative;width:100%;height:500px;background:#fff;border:2px solid var(--ink);border-radius:12px;overflow:hidden;font-size:12.5px}
+.chrome{display:flex;align-items:center;gap:10px;height:36px;border-bottom:1.5px solid var(--ink);padding:0 12px;background:var(--ghost)}
+.chrome .dots{display:flex;gap:5px}
+.chrome .dots i{width:9px;height:9px;border:1.5px solid var(--line);border-radius:50%}
+.chrome .url{flex:1;max-width:340px;height:22px;border:1px solid var(--line);border-radius:6px;background:#fff;
+  font-family:var(--mono);font-size:9.5px;color:var(--line);display:flex;align-items:center;padding:0 8px;gap:6px}
+.chrome .acct{margin-left:auto;display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:9px;color:var(--line)}
+.fbody{display:flex;height:calc(100% - 36px)}
+.side{width:54px;border-right:1.5px solid var(--ink);display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px 0}
+.si{width:28px;height:28px;border:1.5px solid var(--line);border-radius:8px}
+.si.act{background:var(--ink);border-color:var(--ink)}
+.work{flex:1;min-width:0;padding:14px 16px;display:flex;flex-direction:column;gap:10px;overflow:hidden;position:relative}
+.hd{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:2px}
+.title{font-weight:700;font-size:15px}
+.mono{font-family:var(--mono)}
+.small{font-size:11px;color:var(--line);line-height:1.5}
+.hot{position:absolute;z-index:5;width:19px;height:19px;border-radius:50%;background:var(--anno);color:#fff;
+  font-family:var(--mono);font-size:10.5px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2.5px #fff}
+
+/* primitives */
+.bar{height:8px;border-radius:4px;background:#e2e2df}
+.bar.w25{width:25%}.bar.w40{width:40%}.bar.w50{width:50%}.bar.w60{width:60%}.bar.w75{width:75%}.bar.w90{width:90%}
+.avatar{border-radius:50%;background:#fff;border:1.5px solid var(--line);overflow:hidden;position:relative;flex-shrink:0}
+.avatar::after{content:"";position:absolute;inset:-20%;
+  background:linear-gradient(45deg,transparent 47%,var(--hatch) 47% 53%,transparent 53%),
+             linear-gradient(-45deg,transparent 47%,var(--hatch) 47% 53%,transparent 53%)}
+.xph{position:relative;background:var(--ghost);overflow:hidden;flex-shrink:0}
+.xph::before,.xph::after{content:"";position:absolute;width:150%;height:1.5px;background:var(--hatch)}
+.xph::before{top:0;left:0;transform:rotate(45deg);transform-origin:0 0}
+.xph::after{bottom:0;left:0;transform:rotate(-45deg);transform-origin:0 100%}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;height:34px;padding:0 14px;border-radius:9px;
+  font-weight:600;font-size:12.5px;border:2px solid var(--ink);cursor:default;background:#fff}
+.btn.solid{background:var(--ink);color:#fff}
+.btn.sm{height:26px;padding:0 10px;font-size:11px;border-width:1.5px;border-radius:7px}
+.input{border:1.5px solid var(--line);border-radius:9px;padding:0 11px;height:36px;display:flex;align-items:center;color:var(--line);font-size:12px;background:#fff}
+.label{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--line);margin-bottom:5px}
+.chip{display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 9px;border:1px solid var(--line);
+  border-radius:99px;font-size:10.5px;color:#3c3c39;background:#fff;font-family:var(--mono)}
+.chip.fill{background:var(--ink);border-color:var(--ink);color:#fff}
+.chip.gate{border:1.5px dashed var(--ink);color:var(--ink);font-weight:600}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--ink);flex-shrink:0}
+.dot.hollow{background:#fff;border:1.5px solid var(--line)}
+.divider{border-top:1px solid #e3e3e0}
+
+/* kpi + tables + status */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.kpi{border:1.5px solid var(--line);border-radius:10px;padding:9px 11px;background:#fff;position:relative}
+.kpi .v{font-size:19px;font-weight:800;letter-spacing:-.02em}
+.kpi .d{font-family:var(--mono);font-size:9.5px;color:var(--line)}
+.kpi .dv{font-family:var(--mono);font-size:9.5px;font-weight:600}
+.tbl{width:100%;border-collapse:collapse;font-size:11.5px}
+.tbl th{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--line);text-align:left;padding:5px 8px;border-bottom:1.5px solid var(--ink)}
+.tbl td{padding:7px 8px;border-bottom:1px solid #e6e6e2;vertical-align:top}
+.pst{font-family:var(--mono);font-size:9px;letter-spacing:.04em;padding:2px 7px;border-radius:5px;white-space:nowrap;border:1px solid var(--line)}
+.pst.run{background:var(--ink);color:#fff;border-color:var(--ink)}
+.pst.done{border-style:double}
+.pst.gate{border:1.5px dashed var(--ink);font-weight:600}
+.pst.warn{background:repeating-linear-gradient(45deg,#fff 0 5px,var(--ghost) 5px 10px);font-weight:600}
+.prog{height:4px;background:#e2e2df;border-radius:2px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--ink)}
+
+/* reasoning log (signature) */
+.log{font-family:var(--mono);font-size:10px;line-height:1.75;background:#fff;border:1.5px solid var(--ink);border-radius:10px;overflow:hidden}
+.log .lr{display:flex;gap:9px;padding:4px 10px;border-bottom:1px dashed #e0e0db}
+.log .lr:last-child{border-bottom:none;padding-bottom:9px}
+.log .t{color:var(--line);flex-shrink:0}
+.log .op{font-weight:600;flex-shrink:0;min-width:118px}
+.log .self{background:var(--ghost)}
+.log .gate{border-left:3px solid var(--ink);font-weight:600}
+.cite{border:1px dashed var(--line);border-radius:7px;padding:7px 9px;font-family:var(--mono);font-size:9.5px;color:#4a4a46;line-height:1.6;background:#fff}
+.cite u{text-decoration:underline dotted;text-underline-offset:2px}
+.gatecard{border:2px dashed var(--ink);border-radius:12px;padding:12px 14px;background:#fff;position:relative}
+.gatecard::before{content:"HUMAN GATE";position:absolute;top:-8px;left:14px;background:var(--ink);color:#fff;
+  font-family:var(--mono);font-size:8.5px;letter-spacing:.14em;padding:2.5px 8px;border-radius:4px}
+.slider{position:relative;height:18px;display:flex;align-items:center}
+.slider .track{height:4px;border-radius:2px;background:#d8d8d3;width:100%}
+.slider .seg{position:absolute;top:7px;height:4px;border-radius:2px;background:var(--ink)}
+.knob{position:absolute;top:-1px;width:20px;height:20px;border-radius:50%;background:#fff;border:2px solid var(--ink)}
+.toggle{width:38px;height:21px;border-radius:99px;border:1.5px solid var(--line);position:relative;background:#fff;flex-shrink:0}
+.toggle::after{content:"";position:absolute;top:2.5px;left:3px;width:14px;height:14px;border-radius:50%;background:var(--line)}
+.toggle.on{background:var(--ink);border-color:var(--ink)}
+.toggle.on::after{left:auto;right:3px;background:#fff}
+</style>
+<style>.mulepage-close-dark{color:rgba(255,255,255,0.3);transition:color 0.2s ease}.mulepage-close-dark:hover{color:#ffffff}.mulepage-close-light{color:rgba(0,0,0,0.3);transition:color 0.2s ease}.mulepage-close-light:hover{color:#000000}#mulepage-footer-link{display:inline-flex;align-items:center;line-height:0;outline:none}.mulepage-footer-brand{display:inline-flex;align-items:center;box-sizing:border-box;height:32px;max-width:156px;overflow:hidden;padding:4px 12px;border-radius:999px;background:rgba(26,26,26,0.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 0 0 0.5px rgba(255,255,255,0.12),0 8px 24px -4px rgba(0,0,0,0.28);transition:max-width 260ms cubic-bezier(0.22,1,0.36,1);will-change:max-width;white-space:nowrap}.mulepage-footer-brand-hint{display:inline-block;max-width:0;margin-left:0;overflow:hidden;opacity:0;color:rgba(255,255,255,0.72);font-size:14px;font-weight:400;line-height:20px;transition:max-width 260ms cubic-bezier(0.22,1,0.36,1),margin-left 260ms cubic-bezier(0.22,1,0.36,1),opacity 180ms ease-out;will-change:max-width,opacity}#mulepage-footer:hover .mulepage-footer-brand,#mulepage-footer:focus-within .mulepage-footer-brand{max-width:360px}#mulepage-footer:hover .mulepage-footer-brand-hint,#mulepage-footer:focus-within .mulepage-footer-brand-hint{max-width:188px;margin-left:8px;opacity:1}.mulepage-float-close{display:inline-flex;align-items:center;justify-content:center;max-width:0;margin-left:0;overflow:hidden;opacity:0;transition:max-width 0.2s ease,margin-left 0.2s ease,opacity 0.15s ease;padding:0;border:none;background:none;cursor:pointer;font-size:16px;line-height:1;font-weight:300;height:16px;will-change:max-width,opacity}.mulepage-float:hover .mulepage-float-close{max-width:14px;margin-left:4px;opacity:1}</style><link rel="canonical" href="https://ldqrg4ym.qwenwork.page/"><meta property="og:title" content="KURTA — business agent platform · wireframes v0.1"><meta property="og:url" content="https://ldqrg4ym.qwenwork.page/"><meta property="og:type" content="website"><meta property="og:image" content="https://qwenwork.page/og/ldqrg4ym.qwenwork.page.webp"></head>
+<body>
+<div class="decknav">
+  <a href="https://ldqrg4ym.qwenwork.page/">◂ Decks</a>
+  <a class="cur" href="https://ldqrg4ym.qwenwork.page/decks/kurta-wireframes.html">KURTA</a>
+  <a href="https://ldqrg4ym.qwenwork.page/decks/thread-dating.html">Thread · dating</a>
+</div>
+<div class="board">
+  <header>
+    <p class="kicker">Low-fidelity wireframe deck · console-first enterprise product</p>
+    <h1>KURTA<span class="ver">v0.1</span></h1>
+    <p class="lede">Business agents, not business software: automated teammates that reason through corporate objectives,
+      orchestrate workflows across Jira · Salesforce · Snowflake · Slack, and stop at explicit human gates before money,
+      external deliveries, and live code move. Grayscale by design — structure over style, copy provisional.</p>
+    <div class="pillars">
+      <b><u>P1</u> Measurable ROI &amp; operational impact</b>
+      <b><u>P2</u> Deep contextual integration — RAG + tool use</b>
+      <b><u>P3</u> Autonomy · adaptability · self-correction</b>
+      <b><u>P4</u> Security, governance &amp; compliance</b>
+    </div>
+    <nav class="flowkey" aria-label="flow">
+      <a href="https://ldqrg4ym.qwenwork.page/decks/kurta-wireframes.html#k01"><b>K01 Sign in</b></a><span class="fa">→</span>
+      <a href="https://ldqrg4ym.qwenwork.page/decks/kurta-wireframes.html#k02"><b>K02 Command center</b></a><span class="fa">→</span>
+      <a href="https://ldqrg4ym.qwenwork.page/decks/kurta-wireframes.html#k03"><b>K03 Delegate goal</b></a><span class="fa">→</span>
+      <a href="https://ldqrg4ym.qwenwork.page/decks/kurta-wireframes.html#k04"><b>K04 Execution trace</b></a><span class="fa">→</span>
+      <a href="https://ldqrg4ym.qwenwork.page/decks/kurta-wireframes.html#k05"><b>K05 Approval queue</b></a>
+      <span class="fa">⋯</span>
+      <a href="https://ldqrg4ym.qwenwork.page/decks/kurta-wireframes.html#k06"><b>K06 Audit agent</b></a><span class="fa">→</span>
+      <a href="https://ldqrg4ym.qwenwork.page/decks/kurta-wireframes.html#k07"><b>K07 Supply-chain agent</b></a><span class="fa">→</span>
+      <a href="https://ldqrg4ym.qwenwork.page/decks/kurta-wireframes.html#k08"><b>K08 Governance</b></a><span class="fa">·</span>
+      <a href="https://ldqrg4ym.qwenwork.page/decks/kurta-wireframes.html#k09"><b>K09 Value review</b></a>
+    </nav>
+    <p class="legend">◎ blue chips = numbered notes · ▨ = visual slot · bars = text placeholders · dashed = human-in-the-loop requirement</p>
+  </header>
+
+  <main class="grid">
+    <!-- K01 -->
+    <figure class="screen" id="k01">
+      <p class="eyebrow">K01 · P4 ENTRY</p>
+      <h3>Workspace sign-in — identity and clearances come from the directory, never typed</h3>
+      <div class="win">
+        <div class="chrome"><span class="dots"><i></i><i></i><i></i></span>
+          <span class="url" style="position:relative">🔒 acme.kurta.systems<span class="hot" style="top:2px;right:-14px;width:17px;height:17px;font-size:9px">1</span></span>
+          <span class="acct">KURTA</span></div>
+        <div class="fbody"><div class="side" style="border:none;width:100%">
+          <div class="work" style="align-items:center;justify-content:center;gap:16px">
+            <div class="mono" style="font-size:20px;font-weight:700;letter-spacing:-.01em">KURTA</div>
+            <p class="small mono">Automated teammates for finance · supply chain · operations</p>
+            <div style="width:420px">
+              <div class="label">Organization</div>
+              <div class="input" style="margin-bottom:10px"><span class="avatar" style="width:18px;height:18px;margin-right:8px"></span> acme.group · verified tenant</div>
+              <div style="display:flex;flex-direction:column;gap:8px;position:relative">
+                <span class="hot" style="top:-4px;left:-8px;z-index:6">2</span>
+                <span class="btn solid" style="width:100%;height:40px">Continue with Okta SSO</span>
+                <span class="btn" style="width:100%;height:40px">Continue with Microsoft Entra</span>
+              </div>
+              <span class="hot" style="bottom:74px;left:-9px">2</span>
+              <div class="cite" style="margin-top:12px">
+                Sign-in inherits <u>role + data scopes from Active Directory</u>. The agent acts only inside
+                the permissions of the human who delegated — no directory-wide service account.</div>
+            </div>
+          </div>
+        </div></div>
+      </div>
+      <ul class="notes">
+        <li><span class="n">1</span> Single-tenant workspace URL — data residency + isolation stated at the door, not in a trust center later.</li>
+        <li><span class="n">2</span> RBAC starts before the first screen: no local accounts, no shared logins. Provisioning = identity governance already owns the workforce.</li>
+      </ul>
+    </figure>
+
+    <!-- K02 -->
+    <figure class="screen" id="k02">
+      <p class="eyebrow">K02 · P1 OVERVIEW</p>
+      <h3>Command center — what teammates are doing, what needs you, what it's worth</h3>
+      <div class="win">
+        <div class="chrome"><span class="dots"><i></i><i></i><i></i></span>
+          <span class="url">🔒 acme.kurta.systems/mission</span>
+          <span class="acct"><span class="avatar" style="width:18px;height:18px"></span> NDEWAIYO · OPS LEAD</span></div>
+        <div class="fbody">
+          <div class="side">
+            <span class="si act"></span><span class="si"></span><span class="si"></span><span class="si"></span>
+            <span class="si"></span><span class="si" style="margin-top:auto"></span>
+          </div>
+          <div class="work">
+            <div class="hd"><div class="title">Mission control</div>
+              <div style="display:flex;gap:7px"><span class="chip">LAST 7 DAYS</span><span class="btn sm solid">+ Delegate goal</span></div></div>
+            <div class="kpis">
+              <div class="kpi"><span class="hot" style="top:-9px;left:-9px">2</span><div class="v">412 h</div><div class="d">HRS OFFLOADED / WK</div><div class="dv">↑ 18%</div></div>
+              <div class="kpi"><div class="v">32×</div><div class="d">INVOICE CYCLE SPEED</div><div class="dv">6.4 d → 4.8 h</div></div>
+              <div class="kpi"><div class="v">0.4%</div><div class="d">ERROR RATE (HUMAN 3.1%)</div><div class="dv">↓ 87%</div></div>
+              <div class="kpi"><span class="hot" style="top:-9px;right:-9px">1</span>
+                <div class="v">7</div><div class="d">WAITING ON HUMAN SIGN-OFF</div><div class="dv">oldest 40 min</div></div>
+            </div>
+            <div class="divider"></div>
+            <div class="label">Active agents</div>
+            <table class="tbl">
+              <tbody><tr><th>AGENT</th><th>GOAL</th><th>STATE</th><th>PROGRESS</th><th class="mono" style="text-align:right">TOUCHPOINT</th></tr>
+              <tr><td><b>Auditor-2</b> · finance</td><td>Match October invoices ≥ $1M to vendor policy</td>
+                <td><span class="pst run">RUNNING</span></td><td><div class="prog" style="width:90px"><i style="width:72%"></i></div></td>
+                <td class="mono" style="font-size:10px;color:var(--line)">reads NetSuite · SAP</td></tr>
+              <tr><td><b>Restock-A1</b> · supply</td><td>Hold APAC inventory above safety threshold</td>
+                <td><span class="pst gate">◆ AWAITING APPROVAL</span></td><td><div class="prog" style="width:90px"><i style="width:100%"></i></div></td>
+                <td class="mono" style="font-size:10px;color:var(--line)">PO queued · K05</td></tr>
+              <tr><td><b>Onboard-V</b> · vendor ops</td><td>Clear 14 new-vendor compliance backlog</td>
+                <td style="position:relative"><span class="hot" style="top:-6px;left:112px;z-index:6">3</span><span class="pst warn">SELF-CORRECTED</span></td><td><div class="prog" style="width:90px"><i style="width:46%"></i></div></td>
+                <td class="mono" style="font-size:10px;color:var(--line)">Jira API schema change</td></tr>
+              <tr><td><b>Ticket-Triage</b> · IT</td><td>Route Sev-2s, draft first response</td>
+                <td><span class="pst done">DONE</span></td><td><div class="prog" style="width:90px"><i style="width:100%"></i></div></td>
+                <td class="mono" style="font-size:10px;color:var(--line)">84 closed</td></tr>
+            </tbody></table>
+            <p class="small mono" style="margin-top:auto">Anomaly feed: Auditor-2 flags 3 invoices vs policy FIN-Δ7 · Restock-A1 drafted 2 POs ($1.24M combined)</p>
+          </div>
+        </div>
+      </div>
+      <ul class="notes">
+        <li><span class="n">1</span> The deck's most important number is <b>work waiting on a human</b> — autonomy is only safe if the queue is counted, named, and aging publicly (#318 is an SLA breach, not a mystery).</li>
+        <li><span class="n">2</span> Every KPI here is a pillar-1 judging metric: hours offloaded, throughput velocity, error rate vs human baseline. If the number can't be instrumented, it can't be claimed.</li>
+        <li><span class="n">3</span> "SELF-CORRECTED" is a first-class state, not hidden in logs: the Restock path changed when Jira's schema shifted, rerouted through fallback field mapping, and kept moving. That moment is the product pitch.</li>
+      </ul>
+    </figure>
+
+    <!-- K03 -->
+    <figure class="screen" id="k03">
+      <p class="eyebrow">K03 · P3 DELEGATION</p>
+      <h3>Delegate a goal — vague objective in, negotiated boundaries out, nothing runs until you hand it over</h3>
+      <div class="win">
+        <div class="chrome"><span class="dots"><i></i><i></i><i></i></span>
+          <span class="url">🔒 acme.kurta.systems/mission/new</span>
+          <span class="acct"><span class="avatar" style="width:18px;height:18px"></span> NDEWAIYO · OPS LEAD</span></div>
+        <div class="fbody">
+          <div class="side"><span class="si"></span><span class="si"></span><span class="si act"></span><span class="si"></span><span class="si"></span></div>
+          <div class="work" style="flex-direction:row;gap:16px">
+            <div style="flex:1.1;display:flex;flex-direction:column;gap:9px;min-width:0">
+              <div class="hd"><div class="title">Delegate a goal</div><span class="chip">DRAFT</span></div>
+              <div class="label" style="position:relative;padding-left:22px"><span class="hot" style="top:1px;left:0;z-index:6">1</span>Objective — plain language, how you'd say it to a colleague</div>
+              <div style="border:1.5px solid var(--ink);border-radius:10px;padding:10px;font-size:12px;line-height:1.6;min-height:64px;background:#fff">
+                "Find out why Q3 shipping costs spiked and bring me a plan to cut them — talk to procurement before proposing anything we can't fund."
+                <p class="mono" style="font-size:9px;color:var(--line);margin-top:6px">+ goal from manager · slack thread #ops-apac · recurring</p></div>
+              <div class="label">Suggested plan — edit steps before handoff</div>
+              <div class="log" style="min-height:0">
+                <div class="lr"><span class="t">01</span><span class="op">PLAN</span><span>ingest invoices + carrier contracts (RAG) → build variance table</span></div>
+                <div class="lr"><span class="t">02</span><span class="op">SNOWFLAKE</span><span>Q3 freight spend vs Q2 baseline</span></div>
+                <div class="lr"><span class="t">03</span><span class="op">SLACK</span><span>pulse 3 procurement leads — cost-only survey</span></div>
+              </div>
+            </div>
+            <div style="width:264px;flex-shrink:0;border-left:1.5px solid var(--ink);padding-left:14px;display:flex;flex-direction:column;gap:10px">
+              <div class="label">Autonomy envelope</div>
+              <div class="slider"><div class="track"></div><div class="seg" style="left:0;right:55%"></div><div class="knob" style="left:45%"></div><span class="hot" style="top:-4px;left:-10px;width:17px;height:17px;font-size:9px">2</span></div>
+              <p class="mono" style="font-size:9.5px;color:#4a4a46;margin-top:-4px">READ + DRAFT · asks before spending &gt; <b>$50k</b> and before <b>external</b> delivery</p>
+              <div class="divider"></div>
+              <div class="label">Tool access — inherited, verify scopes</div>
+              <div style="display:flex;flex-wrap:wrap;gap:5px">
+                <span class="chip fill">Jira</span><span class="chip fill">Salesforce</span><span class="chip fill">Snowflake</span>
+                <span class="chip fill">Slack</span><span class="chip">+ SAP</span><span class="chip">+ email</span></div>
+              <div class="divider"></div>
+              <span class="hot" style="bottom:118px;right:-9px">3</span>
+              <div class="label" style="position:relative;padding-left:22px"><span class="hot" style="top:1px;left:0;z-index:6">3</span>Hard boundaries — always on, never removable</div>
+              <div style="display:flex;flex-direction:column;gap:6px;font-size:11px">
+                <label style="display:flex;gap:8px;align-items:center"><span class="pst gate" style="padding:1px 6px">NEVER</span> payroll data outside HR scope</label>
+                <label style="display:flex;gap:8px;align-items:center"><span class="pst gate" style="padding:1px 6px">NEVER</span> sign or send contracts unaided</label>
+                <label style="display:flex;gap:8px;align-items:center"><span class="pst gate" style="padding:1px 6px">NEVER</span> touch production code</label></div>
+              <div style="margin-top:auto;display:flex;gap:8px">
+                <span class="btn" style="flex:1">Save draft</span>
+                <span class="btn solid" style="flex:1.4">Hand over goal</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ul class="notes">
+        <li><span class="n">1</span> Inbound noise — manager emails, Slack threads — is first-class input. Pillar 2: the agent digests unstructured context instead of demanding a form.</li>
+        <li><span class="n">2</span> Autonomy is a dial with named, legible rungs (observe → read+draft → act within budget). Default is <b>read+draft</b>, matching a junior teammate. $50k line is a policy artifact, visible exactly where it bites.</li>
+        <li><span class="n">3</span> Red lines come from org policy, are locked per role, and can't be edited here — that's what makes the slider feel safe to move at all.</li>
+      </ul>
+    </figure>
+
+    <!-- K04 -->
+    <figure class="screen" id="k04">
+      <p class="eyebrow">K04 · P3+P4 EXECUTION</p>
+      <h3>Execution trace — live reasoning ledger, every step signed, citations grounded</h3>
+      <div class="win">
+        <div class="chrome"><span class="dots"><i></i><i></i><i></i></span>
+          <span class="url">🔒 acme.kurta.systems/runs/4182</span>
+          <span class="acct"><span class="pst run">RUNNING</span> DELEGATED BY · NDEWAIYO</span></div>
+        <div class="fbody">
+          <div class="work" style="gap:8px;padding:12px 0 0 14px">
+            <div style="display:flex;gap:14px;padding-right:16px">
+              <div style="flex:1;min-width:0">
+                <div class="title" style="font-size:13px">Why did Q3 shipping costs spike · plan 6/9 steps · est. finish 14:22</div>
+              </div>
+              <div style="display:flex;gap:6px;align-items:center"><span class="chip">PAUSE AGENT</span><span class="chip">FOLLOW LIVE <span class="dot hollow" style="width:6px;height:6px;background:var(--ink)"></span></span></div>
+            </div>
+            <div style="display:flex;gap:14px;flex:1;min-height:0">
+              <div style="flex:1.5;min-width:0;overflow:hidden;display:flex;flex-direction:column">
+                                <div style="border:1.5px solid var(--line);border-radius:10px;flex:1;display:flex;flex-direction:column;min-height:0;background:var(--ghost);gap:2px;padding:8px">
+                  <div class="log self" style="border:1px solid var(--hatch)">
+                    <div class="lr"><span class="t">14:02</span><span class="op">QUERY</span><span>Snowflake — SUM(freight_spend) Q3 vs Q2 GROUP BY lane → +11.2%</span></div>
+                    <div class="lr"><span class="t">14:03</span><span class="op">INGEST</span><span>16 emails + 3 LOA PDFs (Maersk surcharge notices) → extracted 42 line items</span></div>
+                    <div class="lr"><span class="t">14:05</span><span class="op">READ</span><span>NetSuite — vendor agreements ×6; matched surcharges to <u>§4.2 fuel clause</u></span></div>
+                    <div class="lr"><span class="t">14:08</span><span class="op">ERROR</span><span>Salesforce API schema drift on <i>shipment_event.v3</i> → step failed</span></div>
+                    <div class="lr" style="position:relative"><span class="hot" style="top:1px;left:56px;width:17px;height:17px;font-size:9px">1</span><span class="t">14:08</span><span class="op" style="margin-left:14px">CORRECT</span><span>fallback: <i>v2</i> compat read + revalidate 142/142 rows · no data loss</span></div>
+                    <div class="lr"><span class="t">14:12</span><span class="op">DRAFT</span><span>PO-8842 renewal · Northwind · $142k → savings plan drafted</span></div>
+                  </div>
+                  <p class="mono" style="font-size:9px;color:var(--line);padding:2px">+ 88 earlier events collapsed · signed chain, exportable for audit</p>
+                </div>
+                <div style="display:flex;gap:8px;padding:0 0 6px">
+                  <div class="cite" style="flex:1">CONCLUSION SO FAR · fuel-surcharge clause applied on <u>48% of APAC volume</u>; Q2 baseline excluded 2 lanes — variance is clause, not demand ↑</div>
+                  <span class="gatecard" style="flex:1;background:#fff" id="gate4">
+                    <span class="hot" style="top:-11px;right:-11px">3</span>
+                    <span class="mono" style="font-size:10px;font-weight:700">STOPPED — SPEND $142,000 ≥ $50k</span>
+                    <div style="display:flex;gap:6px;margin-top:8px"><span class="btn sm solid">Approve</span><span class="btn sm">Ask agent</span><span class="btn sm">Reject</span></div>
+                  </span>
+                </div>
+              </div>
+              <div style="width:232px;flex-shrink:0;border-left:1.5px solid var(--ink);padding-left:12px;display:flex;flex-direction:column;gap:7px">
+                <div class="label" style="position:relative;padding-left:22px"><span class="hot" style="top:1px;left:0;z-index:6">2</span>Evidence — RAG corpus</div>
+                                <div class="cite" style="border-style:solid;border-width:1.5px;border-color:var(--line)">
+                  carrier_contracts.pdf · <u>§4.2</u><br>net_suite · PO templates<br>slack #ops-apac · 16 msgs<br>Q2_forecast.xlsx · rev 3</div>
+                <p class="small mono" style="font-size:8.5px">citations pinned to source version — no drifting references</p>
+                <div class="divider"></div>
+                <div class="label">Tool spans</div>
+                <div style="display:flex;flex-direction:column;gap:5px">
+                  <span class="chip">Jira — 6 read</span><span class="chip">Salesforce — 41 read · 0 write</span>
+                  <span class="chip">Snowflake — 12 query</span><span class="chip">Slack — 2 notify</span>
+                  <span class="chip gate">NetSuite — 1 write · gated</span></div>
+                <p class="small mono" style="margin-top:auto">agent: onshore-ops · scope: read+draft · model route: redacted · $ spent: 142k pending</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ul class="notes">
+        <li><span class="n">1</span> ERROR → CORRECT lines render at the same weight as successes (pillar 3). Auditors don't grade hidden recovery; managers do.</li>
+        <li><span class="n">2</span> Every claim links to the retrieved source <b>version</b> (pillar 2 RAG grounding). "We believe…" is not a sentence the trace tolerates.</li>
+        <li><span class="n">3</span> The run keeps working on the plan and parks only the gated step — an approval queue, not an approval wall; the $50k line re-appears where it fires.</li>
+      </ul>
+    </figure>
+
+    <!-- K05 -->
+    <figure class="screen" id="k05">
+      <p class="eyebrow">K05 · HITL QUEUE</p>
+      <h3>Approval queue — a decision sheet, not a notification: context, checks, blast radius, one tap</h3>
+      <div class="win">
+        <div class="chrome"><span class="dots"><i></i><i></i><i></i></span>
+          <span class="url">🔒 acme.kurta.systems/approvals</span>
+          <span class="acct"><span class="pst gate" style="position:relative"><span class="hot" style="top:3px;left:-13px;width:17px;height:17px;font-size:9px;z-index:6">4</span>◆ 7 PENDING</span> NDEWAIYO</span></div>
+        <div class="fbody">
+          <div class="side"><span class="si"></span><span class="si act"></span><span class="si"></span><span class="si"></span><span class="si"></span></div>
+          <div class="work" style="flex-direction:row;gap:14px">
+            <div style="width:196px;flex-shrink:0;display:flex;flex-direction:column;gap:5px;border-right:1.5px solid var(--ink);padding-right:12px;position:relative">
+              <span class="hot" style="top:0px;left:-7px;z-index:6">3</span>
+              <div class="label" style="padding-left:20px">Queue — oldest first</div>
+              <div style="border:1.5px solid var(--ink);border-radius:8px;padding:7px 9px;background:#fff">
+                <b style="font-size:11.5px">PO-8842 · Northwind</b>
+                <p class="mono" style="font-size:9px;color:var(--line)">$142,000 · spending gate · wait 6m</p></div>
+              <div style="border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:11px">
+                <b>Payroll CSV → auditor</b><p class="mono" style="font-size:9px;color:var(--line)">$0 · RBAC scope · 41m</p></div>
+              <div style="border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:11px">
+                <b>Vendor letter · external</b><p class="mono" style="font-size:9px;color:var(--line)">$0 · client-facing · 1h02m</p></div>
+              <div style="border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:11px;opacity:.55">
+                <b>Contract sync</b><p class="mono" style="font-size:9px;color:var(--line)">auto-approved · under $50k · 3h</p></div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:8px;min-width:0">
+              <div class="hd"><div class="title" style="font-size:13.5px">PO-8842 · renew Northwind freight agreement</div><span class="chip gate">◆ HUMAN DECISION</span></div>
+              <div style="display:flex;gap:9px;position:relative"><span class="hot" style="top:-8px;left:-8px;z-index:6">1</span>
+                <div class="cite" style="flex:1"><b>AGENT RECOMMENDS</b> — $142k/yr, −8% vs expiring rate, 18 mo lane history. Plan step 6/9.</div>
+                <div class="cite" style="flex:1"><b>PRE-FLIGHT CHECKS</b> ✓ vendor DUNS + sanctions ✓ budget line <u>PDX-208</u> holds ✓ 2 competing quotes attached</div>
+              </div>
+              <div class="gatecard" style="padding:10px 12px">
+                <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px">
+                  <span class="label" style="margin:0">If approved, the agent will</span>
+                  <span class="hot" style="position:static;display:inline-flex;margin-left:8px">2</span></div>
+                <div style="display:flex;gap:10px;font-size:11px">
+                  <span>sign via DocuSign</span><span>→</span><span>write PO to NetSuite</span><span>→</span><span>notify #ops-apac</span><span>→</span><span>lock rate table into Snowflake plan</span></div>
+              </div>
+              <div class="log" style="min-height:0">
+                <div class="lr"><span class="t">14:11</span><span class="op">REASON</span><span>"expiring clause §4 is 8.2% over market; renewal caps surcharge — net −$21k/quarter"</span></div>
+                <div class="lr"><span class="t">14:12</span><span class="op">ASKED</span><span>wizard? no — policy: spend ≥ $50k requires named approver</span></div>
+              </div>
+              <div style="display:flex;gap:9px;align-items:center;margin-top:auto">
+                <span class="btn sm solid" style="padding:0 16px">Approve</span>
+                <span class="btn sm">Add condition…</span>
+                <span class="btn sm">Reject with reason</span>
+                <span class="mono" style="font-size:9.5px;color:var(--line);margin-left:auto">you = final approver · co-sign: M. OKONKWO (finance)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ul class="notes">
+        <li><span class="n">1</span> Recommendation + pre-flight checks render before the buttons. Judges score strategic HITL (pillar 3): the approval is only useful if it's <b>informed</b> — nothing asks "approve?" with zero evidence.</li>
+        <li><span class="n">2</span> "If approved, the agent will…" lists downstream writes verbatim — blast radius up front, this is the audit log's pre-image.</li>
+        <li><span class="n">3</span> Queue mixes risk types by design: spend ($142k), security (RBAC-blocked payroll export), and delivery (external letter) each route to their correct approver; the auto line shows policy already cleared low-value items without a human.</li>
+        <li><span class="n">4</span> Every action signed under your identity — the header chip (◆) is your clearance, not the agent's, and reason-for-rejection flows back to the agent as task memory.</li>
+      </ul>
+    </figure>
+
+    <!-- K06 -->
+    <figure class="screen" id="k06">
+      <p class="eyebrow">K06 · P1/P2 AGENT · FINANCE &amp; COMPLIANCE AUDITOR</p>
+      <h3>Auditor agent — 240 invoices against 6 contracts; anomalies flagged in seconds with citations</h3>
+      <div class="win">
+        <div class="chrome"><span class="dots"><i></i><i></i><i></i></span>
+          <span class="url">🔒 acme.kurta.systems/agents/auditor-2</span>
+          <span class="acct">AUDITOR-2 · FINANCE</span></div>
+        <div class="fbody">
+          <div class="side"><span class="si"></span><span class="si"></span><span class="si act"></span><span class="si"></span><span class="si"></span></div>
+          <div class="work">
+            <div class="hd"><div class="title" style="font-size:13.5px">October close · vendor agreement sweep</div>
+              <span class="chip">AUTONOMOUS UNDER $50k</span></div>
+            <div style="display:flex;gap:8px">
+              <div class="kpi" style="flex:1"><div class="v">240</div><div class="d">INVOICES REVIEWED</div><div class="dv">median 1.9 s each</div></div>
+              <div class="kpi" style="flex:1"><span class="hot" style="top:-9px;left:-9px">1</span><div class="v">6</div><div class="d">ANOMALIES FLAGGED</div><div class="dv">3 held · 1 escalated · 2 noted</div></div>
+              <div class="kpi" style="flex:1"><div class="v">$2.84M</div><div class="d">SPEND CROSS-CHECKED</div><div class="dv">6 active vendor agreements</div></div>
+              <div class="kpi" style="flex:1"><div class="v">0</div><div class="d">POLICY MISSES (BASELINE: 3)</div><div class="dv" style="color:#4a4a46">quarter to date</div></div>
+            </div>
+            <div style="display:flex;gap:12px;flex:1;min-height:0">
+              <div style="flex:1.4;min-width:0">
+                <div class="label">Exceptions</div>
+                <table class="tbl">
+                  <tbody><tr><th>DOC</th><th>FINDING</th><th>POLICY HIT</th><th>STATE</th></tr>
+                  <tr><td class="mono" style="font-size:10px">INV-7719<br><span style="color:var(--line)">Gilead Mfg</span></td>
+                    <td>Rate $48/u exceeds agreed cap $42/u — variance +14% on 5,200 u</td>
+                    <td class="mono" style="font-size:10px"><u>§3.1</u> · p.4</td><td><span class="pst gate">◆ HOLD</span></td></tr>
+                  <tr><td class="mono" style="font-size:10px">INV-8021<br><span style="color:var(--line)">Cordis</span></td>
+                    <td>Split across 3 invoices to fall under auto-approval floor</td>
+                    <td class="mono" style="font-size:10px"><u>FIN-Δ7</u></td><td style="position:relative"><span class="hot" style="top:-7px;right:-9px;z-index:6">3</span><span class="pst warn">ESCALATE</span></td></tr>
+                  <tr><td class="mono" style="font-size:10px">CNT-334<br><span style="color:var(--line)">Brightladder</span></td>
+                    <td>PII field in SOW contradicts signed DPA — data privacy</td>
+                    <td class="mono" style="font-size:10px"><u>DPA §8</u></td><td style="position:relative"><span class="hot" style="top:-7px;right:-9px;z-index:6">4</span><span class="pst run">BLOCKED</span></td></tr>
+                  <tr><td colspan="4" style="text-align:center;color:var(--line);font-family:var(--mono);font-size:9.5px">237 clean · auto-posted to NetSuite · signature chain K07</td></tr>
+                </tbody></table>
+              </div>
+              <div style="width:210px;flex-shrink:0;display:flex;flex-direction:column;gap:8px;min-width:0">
+                <div class="label">Why it flagged INV-7719</div>
+                <span class="hot" style="top:132px;right:-9px">2</span>
+                <div class="cite"><u>Gilead_agreement_2026.pdf p.4 §3.1</u>:"unit price fixed at $42, adjustments require CFO countersignature" → matched parsed invoice line item 3 in 6 contract clauses</div>
+                <div class="cite" style="border-style:solid">cross-ref: same vendor slipped §3.1 in <b>Feb + May</b> — pattern, not accident</div>
+                <p class="small mono" style="font-size:8.5px">confidence 0.98 · model saw only contract-scoped chunks</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ul class="notes">
+        <li><span class="n">1</span> Throughput velocity is the pitch (pillar 1): a sweep that took the FP&amp;A team 3 weeks is a 90-second agent read — same contracts, more coverage, fewer misses. Baseline column stays on screen; it's the before/after the judges score.</li>
+        <li><span class="n">2</span> Every flag carries the literal clause text + page (pillar 2 grounding). The auditor never paraphrases policy into existence.</li>
+        <li><span class="n">3</span> "Split-invoices-under-floor" is exactly the anomaly only cross-document reasoning catches — a rule engine sees three clean invoices; a business agent sees one intent. Detection routes to <b>escalate</b>, never auto-posts.</li>
+        <li><span class="n">4</span> RBAC in action (pillar 4): the agent can read contract chunks and write holds, but has no clearance to lift a block itself — Cordis/Brightladder stop at BLOCKED and queue for human.</li>
+      </ul>
+    </figure>
+
+    <!-- K07 -->
+    <figure class="screen" id="k07">
+      <p class="eyebrow">K07 · P1/P3 AGENT · SUPPLY-CHAIN &amp; INVENTORY MANAGER</p>
+      <h3>Restock agent — threshold breached → PO drafted, quotes compared, best contract queued for approval</h3>
+      <div class="win">
+        <div class="chrome"><span class="dots"><i></i><i></i><i></i></span>
+          <span class="url">🔒 acme.kurta.systems/agents/restock-a1/event/7391</span>
+          <span class="acct"><span class="pst gate">◆ AWAITING APPROVAL</span></span></div>
+        <div class="fbody">
+          <div class="work">
+            <div style="display:flex;gap:10px;align-items:center" class="hd">
+              <b class="mono" style="font-size:10px;background:var(--ink);color:#fff;padding:3px 8px;border-radius:5px">TRIGGER 7391</b>
+              <span class="title" style="font-size:12.5px">SKU 40112 · APAC hub → projected 0 in 13 days (safety floor 21 days)</span></div>
+            <div style="display:flex;gap:10px;flex:1;min-height:0">
+              <div style="flex:1.3;display:flex;flex-direction:column;gap:7px;min-width:0">
+                <table class="tbl">
+                  <tbody><tr><th>STEP</th><th>RESULT</th><th>STATE</th></tr>
+                  <tr><td class="mono" style="font-size:10px">1 · monitor</td><td>WMS on-hand 44k ↓ · demand signal +16% (Q4 promo uplift)</td><td><span class="pst done">READ</span></td></tr>
+                  <tr><td class="mono" style="font-size:10px">2 · forecast</td><td>reorder point reached; EOQ model → order 82,000 units</td><td><span class="pst done">SOLVED</span></td></tr>
+                  <tr><td class="mono" style="font-size:10px">3 · RFQ</td><td>drafted PO, requested quotes from 3 pre-approved vendors</td>
+                    <td><span class="hot" style="position:static;display:inline-flex;width:17px;height:17px;font-size:9px">1</span> <span class="pst done">3/3 IN</span></td></tr>
+                  <tr><td class="mono" style="font-size:10px">4 · evaluate</td><td>scored on cost + delivery speed + fill-rate track record <span style="color:var(--line)">→ rationale below, expandable</span></td><td><span class="pst done">DONE</span></td></tr>
+                  <tr><td class="mono" style="font-size:10px">5 · handoff</td><td><b>Northwind wins</b> ($311k, 14d) — <span style="text-decoration:underline dotted">+$12k vs cheapest, −9d vs fastest</span></td>
+                    <td class="mono" style="font-size:10px;color:var(--line)">queued K05</td></tr>
+                </tbody></table>
+                <div class="log" style="min-height:0">
+                  <div class="lr" style="position:relative"><span class="hot" style="top:0;left:2px;width:16px;height:16px;font-size:9px">3</span><span class="t" style="margin-left:20px">13:44</span><span class="op">NOTE</span><span>cheapest vendor fails on-time-fill &lt; 91% floor — cost-only option rejected</span></div>
+                  <div class="lr self"><span class="t">13:46</span><span class="op">CORRECT</span><span>NetSuite stock API schema drift → fallback mirror v2 · no missed cycle</span></div>
+                </div>
+              </div>
+              <div style="width:236px;flex-shrink:0;display:flex;flex-direction:column;gap:8px">
+                <div class="label">Quote comparison — auto-scored</div>
+                <table class="tbl" style="font-size:10.5px">
+                  <tbody><tr><th>VENDOR</th><th>$/u</th><th>ETA</th><th>SCORE</th></tr>
+                  <tr style="background:var(--ghost)"><td><b>Northwind</b></td><td>$3.79</td><td>14 d</td><td><b>0.91 ★</b></td></tr>
+                  <tr><td class="mono" style="color:var(--line)">Kestrel</td><td>$3.64</td><td>23 d</td><td>0.78</td></tr>
+                  <tr><td class="mono" style="color:var(--line)">Solstice</td><td>$3.81</td><td>5 d</td><td class="mono" style="color:var(--line)">fill-rate 86% ✂</td></tr>
+                </tbody></table>
+                <div class="gatecard" style="padding:9px 11px;background:#fff;position:relative"><span class="hot" style="top:-11px;right:-11px;z-index:6">2</span>
+                  <span class="mono" style="font-size:9.5px;font-weight:700">SUGGESTED ACTION → QUEUE K05</span>
+                  <p class="small mono" style="margin-top:4px">PO-9407 · $311k ≥ $50k · co-sign needed<br>agent will not place an order on its own — <b>never</b></p>
+                </div>
+                <div class="cite" style="margin-top:auto"><b>IMPACT IF APPROVED</b>: stockout avoided · expedite premium $48k not incurred · fill-rate risk back under floor</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ul class="notes">
+        <li><span class="n">1</span> This whole column is the pillar-2 workflow in one pass — 3 vendors, 2 systems (SAP + NetSuite), structured output — the orchestration is the product.</li>
+        <li><span class="n">2</span> Autonomy that stops where money moves (pillar 3 strategic HITL): the agent researches/drafts/evaluates freely and hard-stops at PO placement; the gate card <b>shows</b> the boundary it cannot cross.</li>
+        <li><span class="n">3</span> Quote rejection is written out (Solstice disqualified on fill-rate, not hidden)— judges see reasoning, humans see reason to overrule. Cost-only optimization explicitly refused: agent scored on stated objectives, not guessed ones.</li>
+      </ul>
+    </figure>
+
+    <!-- K08 -->
+    <figure class="screen" id="k08">
+      <p class="eyebrow">K08 · P4 GOVERNANCE</p>
+      <h3>Governance console — RBAC, redaction, and the human-reader audit log; the kill switch is real</h3>
+      <div class="win">
+        <div class="chrome"><span class="dots"><i></i><i></i><i></i></span>
+          <span class="url">🔒 acme.kurta.systems/governance</span>
+          <span class="acct">SECOPS · FULL CLEARANCE</span></div>
+        <div class="fbody">
+          <div class="side"><span class="si"></span><span class="si"></span><span class="si"></span><span class="si"></span><span class="si act"></span></div>
+          <div class="work" style="flex-direction:row;gap:14px">
+            <div style="flex:1;display:flex;flex-direction:column;gap:8px;min-width:0">
+              <div class="label">Clearance model — every action scoped</div>
+              <table class="tbl">
+                <tbody><tr><th>ROLE / AGENT</th><th>READS</th><th>WRITES</th><th>SPEND</th><th>DATA SCOPE</th></tr>
+                <tr><td><b>Auditor-2</b></td><td>AP · contracts · expenses</td><td>flags · holds only</td>
+                  <td>none</td><td>finance · PII redacted</td></tr>
+                <tr><td><b>Restock-A1</b></td><td>WMS · demand · vendor DB</td><td>PO drafts</td><td>draft ≤ $500k</td><td>supply chain only</td></tr>
+                <tr><td><b>Ticket-Triage</b></td><td>Jira · knowledge base</td><td>comments · labels</td><td>none</td><td>IT + helpdesk · <b>no HR/leg</b></td></tr>
+                <tr style="background:var(--ghost)"><td style="position:relative"><span class="hot" style="top:-11px;left:0;z-index:6">1</span><b>Ops lead <i>you</i></b></td>
+                  <td>company-wide read</td><td>delegation</td><td>approve ≤ $500k</td><td>full</td></tr>
+              </tbody></table>
+              <div class="log" style="min-height:0;flex:1">
+                <div class="lr"><span class="t">14:12</span><span class="op">TRACE</span><span>aud: <i>read</i> INV-7719 → clause <i>§3.1</i> found → <i>hold</i> created · why: +14% price · cited: Gilead_agreement p.4 · PII: <b>redacted</b></span></div>
+                <div class="lr"><span class="t">14:05</span><span class="op">TRACE</span><span>rest: <i>forecast</i> EOQ 82k → <i>rfq</i> v3 → <i>draft</i> PO-9407 $311k → gate K05 · why: fill-rate 86% vendor rejected (floor 91%)</span></div>
+                <div class="lr"><span class="t">13:41</span><span class="op">SCOPE</span><span>triage blocked <i>read</i> payroll-export ticket (role ∉ {HR}) → routed to HR agent <span class="hot" style="position:static;display:inline-flex;width:16px;height:16px;font-size:9px">4</span></span></div>
+              </div>
+            </div>
+            <div style="width:218px;flex-shrink:0;display:flex;flex-direction:column;gap:8px;border-left:1.5px solid var(--ink);padding-left:12px;position:relative">
+              <span class="hot" style="top:130px;left:-16px;z-index:7">3</span>
+              <div class="label">Data hygiene</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:11px"><span>PII redaction in traces</span><span class="toggle on"></span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:11px"><span>vendor data egress</span><span class="toggle on"></span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:11px"><span>agent read of legal corpus</span><span class="toggle"></span></div>
+              <div class="divider"></div>
+              <div class="label">Policy guardrails</div>
+              <div class="kpi" style="padding:7px 9px"><div class="v" style="font-size:14px">$50k</div><div class="d">AUTO-SPEND CEILING · HITL ABOVE</div></div>
+              <div class="kpi" style="padding:7px 9px"><div class="v" style="font-size:14px">SOC 2 · ISO 27001</div><div class="d">EVIDENCE EXPORT →</div></div>
+              <div style="margin-top:auto;display:flex;flex-direction:column;gap:7px;align-items:flex-start;position:relative">
+                <span class="hot" style="top:-9px;left:150px;z-index:6">2</span>
+                <span class="btn" style="border-style:solid;border-width:2px;height:38px;width:100%">Pause all agents</span>
+                <p class="mono" style="font-size:8.5px;color:var(--line);line-height:1.5">blast radius: 12 live runs stop in ≤ 4s · state resumable · audited</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ul class="notes">
+        <li><span class="n">1</span> Human and agent rows share one table — clearances granted to a model are stated with the same gravity as those granted to a person. A 4th "role" you don't maintain is a breach waiting to happen.</li>
+        <li><span class="n">2</span> Pause-all is the whole pillar-4 argument in one button: an agent fleet that can't be stopped instantly is a liability, not a productivity tool.</li>
+        <li><span class="n">3</span> Toggle states are policy, not preference — flipping "legal corpus" on requires a co-sign flow (same HITL machinery as K05, applied to permissions).</li>
+        <li><span class="n">4</span> Denied accesses route, they don't error: the out-of-scope read was handed to the correct agent — RBAC as flow control, invisible unless you look here.</li>
+      </ul>
+    </figure>
+
+    <!-- K09 -->
+    <figure class="screen" id="k09">
+      <p class="eyebrow">K09 · P1 RETROSPECTIVE</p>
+      <h3>Value review — the quarterly "did it move the needle" that decides which agents scale</h3>
+      <div class="win">
+        <div class="chrome"><span class="dots"><i></i><i></i><i></i></span>
+          <span class="url">🔒 acme.kurta.systems/value/Q3</span>
+          <span class="acct">REVIEW · OPS + FINANCE</span></div>
+        <div class="fbody">
+          <div class="side"><span class="si"></span><span class="si"></span><span class="si"></span><span class="si act"></span><span class="si"></span></div>
+          <div class="work">
+            <div class="hd"><div class="title">What the agents delivered — Q3 FY26</div>
+              <div style="display:flex;gap:7px"><span class="btn sm solid">Export board PDF</span></div></div>
+            <div style="display:flex;gap:12px;flex:1;min-height:0">
+              <div style="flex:1.35;display:flex;flex-direction:column;gap:7px;position:relative">
+                <div class="label">Per-agent — hours offloaded vs human error baseline</div>
+                <table class="tbl">
+                  <tbody><tr><th>AGENT</th><th>HRS/WK</th><th>SPEED</th><th>ERRORS</th><th>KEEP?</th></tr>
+                  <tr><td>Auditor-2 · finance</td><td>118 h</td><td>32× invoice cycle</td><td>0.4% vs 3.1% ✓</td><td><b>SCALE ×3</b></td></tr>
+                  <tr><td>Restock-A1 · supply</td><td>74 h</td><td>stockout risk −</td><td>96% of 1,204 lines ✓</td><td><b>SCALE</b></td></tr>
+                  <tr><td>Ticket-Triage · IT</td><td>142 h</td><td>Sev-2 in 19 m</td><td>1.3% vs 6.8% ✓</td><td>RUN</td></tr>
+                  <tr style="background:var(--ghost)"><td style="position:relative"><span class="hot" style="top:-11px;left:0;z-index:6">1</span>Contract-Draft1 · legal</td><td>28 h</td><td>2.1× — under bar</td><td>2 cites failed review ✗</td><td><b class="mono">RETRAIN / CUT</b></td></tr>
+                </tbody></table>
+                <div class="cite" style="border-style:solid">
+                  THE NUMBERS THAT MOVED (pillar 1 → P4): $311k Northwind −8% · $142k Gilead held pending clause · stockout premium $48k avoided · expedite fees −32%. <span class="mono" style="font-size:8px">all values tie to gated K05 decisions — not projected</span></div>
+                <p class="small mono">Every number above exports with its trace (K08) behind it — this report is self-auditing, like a board pack, not a demo.</p>
+              </div>
+              <div style="width:216px;flex-shrink:0;display:flex;flex-direction:column;gap:7px;border-left:1.5px solid var(--ink);padding-left:12px;position:relative">
+                <div class="kpi"><span class="hot" style="top:-9px;right:-9px">2</span><div class="v">$1.84M</div><div class="d">TRACKABLE VALUE Q3</div><div class="dv">vs $96k run cost</div></div>
+                <div class="cite" id="cite9" style="position:relative"><span class="hot" style="top:-11px;right:-9px;width:17px;height:17px;font-size:9px;z-index:6">3</span>4 pilot teams → 7 agents<br>avg approval wait 22 m · SLA 3 h<br>92% HITL decisions accepted<br>0 policy misses<br>0 RBAC breach</div>
+                <div class="divider"></div>
+                <div class="label">Decisions — review to action</div>
+                <div style="border:1.5px solid var(--ink);border-radius:8px;padding:7px 9px;flex:1;display:flex;flex-direction:column;gap:5px">
+                  <span class="btn sm solid" style="width:100%">Approve scaling plan</span>
+                  <span class="btn sm" style="width:100%">Hold · add vendor diversity check</span>
+                  <span class="btn sm" style="width:100%">Retrain · Contract-Draft1</span>
+                  <p class="mono" style="font-size:8px;color:var(--line);margin-top:auto">these buttons write the decisions — no meeting notes required</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ul class="notes">
+        <li><span class="n">1</span> Keep/Scale/Cut per agent is the whole point of pillar 1 — this is where the product earns the next budget. The honest row (Contract-Draft1) is what makes the other four believable.</li>
+        <li><span class="n">2</span> Value ÷ run cost is the ROI line — and it counts approval latency + HITL acceptance rate as cost, not fine print. Autonomy people don't trust is value that stalls in queue.</li>
+        <li><span class="n">3</span> Zero breaches with a "0 policy misses" claim in the same block makes the quarter defensible under pillar 4.</li>
+      </ul>
+    </figure>
+  </main>
+</div>
+
+
+<div id="mulepage-footer" dir="ltr" class="mulepage-float" style="position:fixed !important;bottom:16px !important;right:16px !important;z-index:2147483646;display:inline-flex;align-items:center;padding:0;cursor:pointer;background:transparent;border:0;box-shadow:none;font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',sans-serif;"><span id="mulepage-footer-link" role="link" tabindex="0" aria-label="Open QwenWork" style="display:inline-flex;align-items:center;line-height:0;"><span class="mulepage-footer-brand"><img src="./KURTA — business agent platform · wireframes v0.1_files/qwenwork-logo.svg" alt="QwenWork" width="132" height="24" style="display:block;user-select:none;filter:invert(1);"><span class="mulepage-footer-brand-hint">AI-generated. Please verify.</span></span></span><button class="mulepage-float-close" aria-label="Close QwenWork badge" style="color: rgba(255, 255, 255, 0.35);">×</button></div></body></html>

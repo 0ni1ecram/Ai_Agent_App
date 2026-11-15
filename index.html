@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="KURTA build blueprint: architecture diagram, typed workflow contracts, validated sample I/O and enforced invariants for every pipeline step.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700..800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>KURTA &middot; build blueprint v0.1</title>
+<style>
+:root{--paper:#e8e8e3;--grid:#d2d2cb;--ink:#1b1b1a;--line:#70706c;--anno:#2c5fce;
+--faint:#4c4c48;--ghost:#ececeb;--ok:#15651f;
+--mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;--disp:"Bricolage Grotesque","Arial Black",sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);background-image:radial-gradient(var(--grid) 1px,transparent 1px);
+background-size:22px 22px;color:var(--ink);font-family:var(--mono);font-size:13px;line-height:1.6}
+.wrap{max-width:1240px;margin:0 auto;padding:48px 28px 110px}
+a{color:var(--anno)}
+h1{font-family:var(--disp);font-weight:800;font-size:clamp(30px,4.4vw,46px);letter-spacing:-.015em;margin:10px 0 4px}
+h1 .ver{font-family:var(--mono);font-size:.38em;background:var(--ink);color:#fff;padding:4px 8px;border-radius:6px;vertical-align:middle;margin-left:12px}
+.kicker{letter-spacing:.14em;text-transform:uppercase;font-size:11px;color:var(--line)}
+.lede{max-width:80ch;color:var(--faint);font-size:12.5px}
+.decknav{position:fixed;top:14px;right:18px;z-index:9;display:flex;gap:8px}
+.decknav a{font-size:10.5px;color:var(--ink);background:#fff;border:1.5px solid var(--ink);border-radius:7px;padding:5px 9px;text-decoration:none}
+section{margin-top:56px}
+h2{font-family:var(--disp);font-size:22px;letter-spacing:.2px;display:flex;align-items:baseline;gap:12px}
+h2 .idx{font-family:var(--mono);font-weight:600;font-size:11px;color:#fff;background:var(--anno);border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 0 0 2.5px #fff,0 0 0 4px rgba(44,95,206,.35)}
+h2+ p.sub{color:var(--faint);font-size:11.5px;max-width:95ch;margin-top:4px}
+svg text{font-family:var(--mono)}
+.panel{background:#fff;border:2px solid var(--ink);border-radius:14px;padding:20px;box-shadow:5px 6px 0 rgba(27,27,26,.14);margin-top:18px;overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:11.5px}
+th{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--line);text-align:left;padding:6px 8px;border-bottom:1.5px solid var(--ink)}
+td{padding:6px 8px;border-bottom:1px solid #e6e6e2;vertical-align:top}
+code,.fd{background:var(--ghost);border-radius:4px;padding:1px 5px;font-size:.92em;overflow-wrap:anywhere}
+table{table-layout:fixed}
+td,.fd{overflow-wrap:anywhere}
+td.fn, td.fn{width:34%}
+.stage{background:#fff;border:2px solid var(--ink);border-radius:14px;margin-top:26px;box-shadow:5px 6px 0 rgba(27,27,26,.12);overflow:hidden}
+.stage>.head{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:2px solid var(--ink);background:var(--ghost)}
+.sid{font-family:var(--disp);font-weight:800;font-size:17px}
+.sid .no{color:var(--anno);margin-right:6px}
+.svc{font-size:10.5px;color:var(--faint)}
+.tagrow{display:flex;flex-wrap:wrap;gap:6px}
+.tag{border:1px solid var(--line);border-radius:99px;padding:1px 9px;font-size:9.5px;letter-spacing:.04em;color:var(--faint)}
+.tag.gatechip{border:1.5px dashed var(--ink);color:var(--ink);font-weight:600}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:0}
+.cell{padding:14px 18px;border-right:1px dashed #d8d8d3}
+.cell:last-child{border-right:none}
+.cell h4{font-size:9px;letter-spacing:.09em;text-transform:uppercase;color:var(--line);margin-bottom:8px}
+.sems{font-size:11.5px;color:var(--faint);max-width:44ch}
+.fail-note{margin-top:8px;font-size:11px;color:var(--ink)}
+.fail-note b{color:var(--anno)}
+details{margin-top:8px}
+summary{cursor:pointer;font-size:10.5px;letter-spacing:.05em;color:var(--anno)}
+.jsample{margin:8px 0}
+.jlab{font-size:9px;letter-spacing:.09em;text-transform:uppercase;color:var(--line);margin-bottom:3px}
+pre.json{background:#fbfbf8;border:1.5px solid #dcdcd6;border-radius:9px;padding:12px 14px;font-size:10.5px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-top:16px}
+.rule{background:#fff;border:1.5px solid var(--ink);border-radius:10px;padding:12px 14px;font-size:11.5px}
+.rule b{display:block;font-size:11px;letter-spacing:.04em;margin-bottom:4px}
+.rule .imp{color:var(--ok);font-weight:600}
+.foot{margin-top:64px;border-top:2px solid var(--ink);padding-top:14px;font-size:10.5px;color:var(--faint)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:10px;color:var(--faint);margin-top:10px}
+</style>
+</head>
+<body>
+<div class="decknav"><a href="/">&#9670; Decks</a></div>
+<div class="wrap">
+<header>
+ <p class="kicker">Blueprint &middot; contracts-first build spec &middot; pairs with wireframe deck K01&ndash;K09</p>
+ <h1>KURTA build blueprint<span class="ver">v0.1</span></h1>
+ <p class="lede">Every arrow between services carries one named contract. The 17 sample payloads below were emitted by
+ <code>kurta_schemas.py</code> and pass validation + JSON round-trip as they run on the build box; the 10 refusal
+ checks are real error strings from the validator. If a box on this page is wrong, the code disagrees with you and
+ CI says so before prod does.</p>
+</header>
+
+<section>
+ <h2><span class="idx">0</span>Pipeline at a glance</h2>
+ <p class="sub">Intake to ROI board in 13 contracts. Governance and storage are drawn as wraps, because they touch every edge.</p>
+ <div class="panel"><svg viewBox="0 0 1400 296" width="100%" height="auto" role="img" aria-label="KURTA pipeline overview S1 to S13"><defs><marker id="ar" viewBox="0 0 8 8" refX="7" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L8,4L0,8z" fill="var(--line)"/></marker></defs><g><rect x="20.0" y="104" width="74" height="46" rx="9" fill="#fff" stroke="var(--ink)" stroke-width="1.8"/><text x="57.0" y="123" text-anchor="middle" font-size="10.5" font-weight="700">S1</text><text x="57.0" y="139" text-anchor="middle" font-size="9" fill="var(--faint)">GoalIntake</text></g><g><rect x="127.2" y="104" width="74" height="46" rx="9" fill="#fff" stroke="var(--ink)" stroke-width="1.8"/><text x="164.2" y="123" text-anchor="middle" font-size="10.5" font-weight="700">S2</text><text x="164.2" y="139" text-anchor="middle" font-size="9" fill="var(--faint)">GoalSpec</text></g><g><rect x="234.3" y="104" width="74" height="46" rx="9" fill="#fff" stroke="var(--ink)" stroke-width="1.8"/><text x="271.3" y="123" text-anchor="middle" font-size="10.5" font-weight="700">S3</text><text x="271.3" y="139" text-anchor="middle" font-size="9" fill="var(--faint)">CompiledPlan</text></g><g><rect x="341.5" y="104" width="74" height="46" rx="9" fill="#fff" stroke="var(--ink)" stroke-width="1.8"/><text x="378.5" y="123" text-anchor="middle" font-size="10.5" font-weight="700">S4</text><text x="378.5" y="139" text-anchor="middle" font-size="9" fill="var(--faint)">validated plan</text></g><g><rect x="448.7" y="104" width="74" height="46" rx="9" fill="#fff" stroke="var(--ink)" stroke-width="1.8"/><text x="485.7" y="123" text-anchor="middle" font-size="10.5" font-weight="700">S5</text><text x="485.7" y="139" text-anchor="middle" font-size="9" fill="var(--faint)">ToolCallRequest</text></g><g><rect x="555.8" y="104" width="74" height="46" rx="9" fill="#fff" stroke="var(--ink)" stroke-width="1.8"/><text x="592.8" y="123" text-anchor="middle" font-size="10.5" font-weight="700">S6</text><text x="592.8" y="139" text-anchor="middle" font-size="9" fill="var(--faint)">IngestedItem</text></g><g><rect x="663.0" y="104" width="74" height="46" rx="9" fill="#fff" stroke="var(--ink)" stroke-width="1.8"/><text x="700.0" y="123" text-anchor="middle" font-size="10.5" font-weight="700">S7</text><text x="700.0" y="139" text-anchor="middle" font-size="9" fill="var(--faint)">AnomalyScore</text></g><g><rect x="770.2" y="104" width="74" height="46" rx="9" fill="#fff" stroke="var(--ink)" stroke-width="1.8"/><text x="807.2" y="123" text-anchor="middle" font-size="10.5" font-weight="700">S8</text><text x="807.2" y="139" text-anchor="middle" font-size="9" fill="var(--faint)">PolicyDecision</text></g><g><rect x="877.3" y="104" width="74" height="46" rx="9" fill="#fff" stroke="var(--ink)" stroke-width="1.8"/><text x="914.3" y="123" text-anchor="middle" font-size="10.5" font-weight="700">S9</text><text x="914.3" y="139" text-anchor="middle" font-size="9" fill="var(--faint)">SelfCorrect</text></g><g><rect x="984.5" y="104" width="74" height="46" rx="9" fill="#fff" stroke="var(--ink)" stroke-width="1.8"/><text x="1021.5" y="123" text-anchor="middle" font-size="10.5" font-weight="700">S10</text><text x="1021.5" y="139" text-anchor="middle" font-size="9" fill="var(--faint)">ApprovalReq</text></g><g><rect x="1091.7" y="104" width="74" height="46" rx="9" fill="#fff" stroke="var(--ink)" stroke-width="1.8"/><text x="1128.7" y="123" text-anchor="middle" font-size="10.5" font-weight="700">S11</text><text x="1128.7" y="139" text-anchor="middle" font-size="9" fill="var(--faint)">MutReceipt</text></g><g><rect x="1198.8" y="104" width="74" height="46" rx="9" fill="#fff" stroke="var(--ink)" stroke-width="1.8"/><text x="1235.8" y="123" text-anchor="middle" font-size="10.5" font-weight="700">S12</text><text x="1235.8" y="139" text-anchor="middle" font-size="9" fill="var(--faint)">TraceRow</text></g><g><rect x="1306.0" y="104" width="74" height="46" rx="9" fill="#fff" stroke="var(--ink)" stroke-width="1.8"/><text x="1343.0" y="123" text-anchor="middle" font-size="10.5" font-weight="700">S13</text><text x="1343.0" y="139" text-anchor="middle" font-size="9" fill="var(--faint)"></text></g><line x1="94.0" y1="127" x2="123.2" y2="127" stroke="var(--line)" stroke-width="1.6" marker-end="url(#ar)" /><text x="110.6" y="109" text-anchor="middle" font-size="8.4" fill="var(--anno)"></text><line x1="201.2" y1="127" x2="230.3" y2="127" stroke="var(--line)" stroke-width="1.6" marker-end="url(#ar)" /><text x="217.8" y="109" text-anchor="middle" font-size="8.4" fill="var(--anno)"></text><line x1="308.3" y1="127" x2="337.5" y2="127" stroke="var(--line)" stroke-width="1.6" marker-end="url(#ar)" /><text x="324.9" y="109" text-anchor="middle" font-size="8.4" fill="var(--anno)"></text><line x1="415.5" y1="127" x2="444.7" y2="127" stroke="var(--line)" stroke-width="1.6" marker-end="url(#ar)" /><text x="432.1" y="109" text-anchor="middle" font-size="8.4" fill="var(--anno)"></text><line x1="522.7" y1="127" x2="551.8" y2="127" stroke="var(--line)" stroke-width="1.6" marker-end="url(#ar)" /><text x="539.2" y="109" text-anchor="middle" font-size="8.4" fill="var(--anno)"></text><line x1="629.8" y1="127" x2="659.0" y2="127" stroke="var(--line)" stroke-width="1.6" marker-end="url(#ar)" /><text x="646.4" y="109" text-anchor="middle" font-size="8.4" fill="var(--anno)"></text><line x1="737.0" y1="127" x2="766.2" y2="127" stroke="var(--line)" stroke-width="1.6" marker-end="url(#ar)" /><text x="753.6" y="109" text-anchor="middle" font-size="8.4" fill="var(--anno)"></text><line x1="844.2" y1="127" x2="873.3" y2="127" stroke="var(--line)" stroke-width="1.6" marker-end="url(#ar)" /><text x="860.8" y="109" text-anchor="middle" font-size="8.4" fill="var(--anno)"></text><line x1="951.3" y1="127" x2="980.5" y2="127" stroke="var(--line)" stroke-width="1.6" marker-end="url(#ar)" /><text x="967.9" y="109" text-anchor="middle" font-size="8.4" fill="var(--anno)"></text><line x1="1058.5" y1="127" x2="1087.7" y2="127" stroke="var(--line)" stroke-width="1.6" marker-end="url(#ar)" /><text x="1075.1" y="109" text-anchor="middle" font-size="8.4" fill="var(--anno)"></text><line x1="1165.7" y1="127" x2="1194.8" y2="127" stroke="var(--line)" stroke-width="1.6" marker-end="url(#ar)" /><text x="1182.2" y="109" text-anchor="middle" font-size="8.4" fill="var(--anno)"></text><line x1="1272.8" y1="127" x2="1302.0" y2="127" stroke="var(--line)" stroke-width="1.6" marker-end="url(#ar)" /><text x="1289.4" y="109" text-anchor="middle" font-size="8.4" fill="var(--anno)"></text><path d="M844.2,127 Q914.3,59 980.5,127" fill="none" stroke="var(--line)" stroke-width="1.5" marker-end="url(#ar)" stroke-dasharray="4 3"/><text x="914.3" y="73" text-anchor="middle" font-size="8.2" fill="var(--anno)">gate opens</text><path d="M415.5,127 Q646.4,59 873.3,127" fill="none" stroke="var(--line)" stroke-width="1.5" marker-end="url(#ar)" stroke-dasharray="4 3"/><text x="646.4" y="73" text-anchor="middle" font-size="8.2" fill="var(--anno)">repair / replan</text><rect x="20" y="188" width="1360" height="30" rx="7" fill="none" stroke="var(--ink)" stroke-width="1.8" stroke-dasharray="7 4"/><text x="34" y="207" font-size="9.6" font-weight="700" fill="var(--ink)">GOVERNANCE WRAP · OPA + ApprovalDecision + hash-chained TraceRow on every mutating edge — fail-closed</text><rect x="20" y="234" width="1360" height="30" rx="7" fill="var(--ghost)" stroke="var(--line)" stroke-width="1.5"/><text x="34" y="253" font-size="9.6" fill="var(--faint)">STORES · postgres+pgvector · kafka · docstore · temporal · vault · trace-store(WORM) · otel</text></svg></div>
+ <div class="legend"><span>&#9670; dashed = policy/HITL interaction</span><span>labels = contract crossing the arrow</span><span>edge color blue = dtype name</span></div>
+</section>
+
+<section>
+ <h2><span class="idx">&#960;</span>Global dtype rules</h2>
+ <p class="sub">Four constraints make the rest of the document boring &mdash; in the best way.</p>
+ <div class="rules"><div class="rule"><b>Money</b>amount_minor is signed cents (int) + ISO-4217 uppercase. Float money is a type error, not a style choice. Money.major exists only for display.</div><div class="rule"><b>Time</b>UtcDatetime on every stamp: naive datetimes fail at validation, not silently in prod. UTC is the lingua franca; locale is a UI concern.</div><div class="rule"><b>Identifiers</b>^[a-z0-9_]{8,40} &mdash; opaque ULID-style, sortable, never PII-bearing.</div><div class="rule"><b>Integrity</b>Every citation, receipt, policy bundle and trace link is ^[0-9a-f]{64}$ by pattern; nothing says 'hash-ish string'.</div><div class="rule"><b>Enums</b>verdict / gate / outcome / kind fields are closed enums. Free language lives in reason/basis fields only, so routing logic never parses prose.</div><div class="rule"><b>extra=forbid</b>Every contract rejects unknown fields: upstream schema creep is a loud 422, not an ignored key.</div><div class="rule"><b>Round-trip</b>The runner validates model_dump_json -> re-parse -> equality. A sample that cannot survive its own serialization is a bug in the model, not the sample.</div></div>
+</section>
+
+<section>
+ <h2><span class="idx">&#931;</span>The 13 workflow contracts</h2>
+ <p class="sub">Row order is execution order; S9 can be entered from S5/S8 (self-correction is a loop edge, not a phase).</p>
+ 
+<article class="stage" id="S1">
+ <div class="head"><div class="sid"><span class="no">S1</span>Goal intake</div>
+  <div class="svc">goal-service · FastAPI POST /v1/goals</div></div>
+ <div class="grid3">
+  <div class="cell"><h4>In · dtypes</h4><table><tr><td class="fn">run_id</td><td class="fd">Id</td></tr><tr><td class="fn">tenant_id</td><td class="fd">Id</td></tr><tr><td class="fn">submitted_by</td><td class="fd">ActorRef{kind,id,roles,delegator?}</td></tr><tr><td class="fn">text</td><td class="fd">str 8–8000</td></tr><tr><td class="fn">contexts</td><td class="fd">ContextRef[kind∈email|slack_thread|ticket|document, locator:str</td></tr></table></div>
+  <div class="cell"><h4>Out · dtypes</h4><table><tr><td class="fn">GoalIntake</td><td class="fd">full contract echoed</td></tr></table></div>
+  <div class="cell"><h4>Semantics</h4><p class="sems">Raw human language enters; nothing is interpreted here. The full quote + thread permalinks ride along so downstream parse has the evidence, not just the ask.</p>
+   <p class="fail-note"><b>On failure:</b> 422 problem-details on contract break; idempotency window 24 h on run_id.</p>
+   <div class="tagrow" style="margin-top:10px"><span class="tag">&#9670; authn: AD token · tenant-scoped url</span></div>
+   <div class="tagrow" style="margin-top:6px"><span class="tag">postgres:runs</span><span class="tag">kafka:goals.raw</span><span class="tag">waf/rate-limit</span></div>
+  </div>
+ </div>
+ <div style="padding:10px 18px 16px">
+  <details open><summary>JSON payloads &middot; validated by kurta_schemas.py</summary></details>
+ </div>
+</article>
+<article class="stage" id="S2">
+ <div class="head"><div class="sid"><span class="no">S2</span>Goal parse → GoalSpec</div>
+  <div class="svc">goal-parser · mid-tier LLM, JSON-schema mode</div></div>
+ <div class="grid3">
+  <div class="cell"><h4>In · dtypes</h4><table><tr><td class="fn">(S1.text + contexts)</td><td class="fd">model input</td></tr></table></div>
+  <div class="cell"><h4>Out · dtypes</h4><table><tr><td class="fn">schema_version</td><td class="fd">&#x27;goalspec/v1&#x27;</td></tr><tr><td class="fn">objective</td><td class="fd">str ≤500</td></tr><tr><td class="fn">deliverable</td><td class="fd">enum: findings_report|po_draft|contract_review|approval_packet</td></tr><tr><td class="fn">deadline?</td><td class="fd">UtcDatetime</td></tr><tr><td class="fn">budget_cap?</td><td class="fd">Money{minor,currency}</td></tr><tr><td class="fn">in_scope_systems</td><td class="fd">str[] regex ^[a-z0-9_.-]+$</td></tr><tr><td class="fn">out_of_scope</td><td class="fd">str[]</td></tr><tr><td class="fn">acceptance_criteria</td><td class="fd">str[] ≥1</td></tr><tr><td class="fn">parsed_confidence</td><td class="fd">float 0–1</td></tr><tr><td class="fn">ambiguity_flags</td><td class="fd">AmbiguityFlag[]</td></tr></table></div>
+  <div class="cell"><h4>Semantics</h4><p class="sems">Prose becomes a typed contract: objective, deliverable enum, budget cap in minor units, in/out-of-scope systems, acceptance criteria (min 1). Repair round ≤2 then clarify, never guess.</p>
+   <p class="fail-note"><b>On failure:</b> 202 clarification-request instead of 202-run when blocking_flags ∧ conf&lt;0.85.</p>
+   <div class="tagrow" style="margin-top:10px"><span class="tag">&#9670; confidence 0.85 floor while blocking ambiguity exists</span></div>
+   <div class="tagrow" style="margin-top:6px"><span class="tag">model-gateway</span><span class="tag">postgres:specs</span><span class="tag">pgvector (prior specs near-miss lookup)</span></div>
+  </div>
+ </div>
+ <div style="padding:10px 18px 16px">
+  <details open><summary>JSON payloads &middot; validated by kurta_schemas.py</summary></details>
+ </div>
+</article>
+<article class="stage" id="S3">
+ <div class="head"><div class="sid"><span class="no">S3</span>Plan compile</div>
+  <div class="svc">planner · top-tier LLM + playbook library</div></div>
+ <div class="grid3">
+  <div class="cell"><h4>In · dtypes</h4><table><tr><td class="fn">(S2.GoalSpec)</td><td class="fd">typed</td></tr></table></div>
+  <div class="cell"><h4>Out · dtypes</h4><table><tr><td class="fn">CompiledPlan</td><td class="fd">steps: PlanStep[] · goal_sha256: hex64</td></tr></table></div>
+  <div class="cell"><h4>Semantics</h4><p class="sems">Known goals map to vetted playbook DAGs (cost, latency, hallucination bound to templates that passed evals); novel goals get dynamic planning. Every step carries args_schema_ref, declared IO fields, spend, gate id.</p>
+   <p class="fail-note"><b>On failure:</b> non-deterministic temperature ceiling; planner output that violates S4 never reaches an executor.</p>
+   <div class="tagrow" style="margin-top:10px"><span class="tag">&#9670; planbook match short-circuits free planning</span></div>
+   <div class="tagrow" style="margin-top:6px"><span class="tag">postgres:playbooks</span><span class="tag">model-gateway</span><span class="tag">plan-cache (goal_sha→plan)</span></div>
+  </div>
+ </div>
+ <div style="padding:10px 18px 16px">
+  <details open><summary>JSON payloads &middot; validated by kurta_schemas.py</summary></details>
+ </div>
+</article>
+<article class="stage" id="S4">
+ <div class="head"><div class="sid"><span class="no">S4</span>Plan validation</div>
+  <div class="svc">validator · pure code, zero LLM</div></div>
+ <div class="grid3">
+  <div class="cell"><h4>In · dtypes</h4><table><tr><td class="fn">CompiledPlan</td><td class="fd">candidate</td></tr></table></div>
+  <div class="cell"><h4>Out · dtypes</h4><table><tr><td class="fn">CompiledPlan</td><td class="fd">validated</td></tr></table></div>
+  <div class="cell"><h4>Semantics</h4><p class="sems">Duplicate step_id · unknown dependency · Kahn cycle check · any mutating/external-send step without a named policy gate. These run as model validators at construction time — an illegal step cannot exist, even standalone.</p>
+   <p class="fail-note"><b>On failure:</b> cycle → repair-prompt round → escalate human with the diff.</p>
+   <div class="tagrow" style="margin-top:10px"><span class="tag">&#9670; hard rules; not configurable</span></div>
+   <div class="tagrow" style="margin-top:6px"><span class="tag">(sync) in-process</span></div>
+  </div>
+ </div>
+ <div style="padding:10px 18px 16px">
+  <details open><summary>JSON payloads &middot; validated by kurta_schemas.py</summary></details>
+ </div>
+</article>
+<article class="stage" id="S5">
+ <div class="head"><div class="sid"><span class="no">S5</span>Tool execution</div>
+  <div class="svc">connector fabric (own thin layer over direct APIs &amp; iPaaS)</div></div>
+ <div class="grid3">
+  <div class="cell"><h4>In · dtypes</h4><table><tr><td class="fn">ToolCallRequest</td><td class="fd">call_id,run_id,step_id,tool,typed args,idempotency_key,timeout_ms,actor</td></tr></table></div>
+  <div class="cell"><h4>Out · dtypes</h4><table><tr><td class="fn">ToolResult</td><td class="fd">ok:bool · data: RowSet(columns_dtypes+rows) · error: ToolError · usage</td></tr></table></div>
+  <div class="cell"><h4>Semantics</h4><p class="sems">RowSet declares Arrow dtypes per column; row width is validated. Schema drift surfaces as a typed SCHEMA_DRIFT error with observed vs expected versions, not a crash. max_rows caps extraction.</p>
+   <p class="fail-note"><b>On failure:</b> AUTH→re-auth·SCHEMA_DRIFT→S9·RATE_LIMIT→backoff·SEMANTIC→replan subgraph·exhausted→S10.</p>
+   <div class="tagrow" style="margin-top:10px"><span class="tag">&#9670; PolicyInput → OPA before any mutates_state op runs</span></div>
+   <div class="tagrow" style="margin-top:6px"><span class="tag">vault (scoped creds)</span><span class="tag">kafka:tool-events</span><span class="tag">prometheus/otel</span></div>
+  </div>
+ </div>
+ <div style="padding:10px 18px 16px">
+  <details open><summary>JSON payloads &middot; validated by kurta_schemas.py</summary></details>
+ </div>
+</article>
+<article class="stage" id="S6">
+ <div class="head"><div class="sid"><span class="no">S6</span>Unstructured ingestion</div>
+  <div class="svc">doc-parse workers (parser+chunker+embedder+ACL-sync)</div></div>
+ <div class="grid3">
+  <div class="cell"><h4>In · dtypes</h4><table><tr><td class="fn">(PDF/email/audio ref from S1)</td><td class="fd">source content</td></tr></table></div>
+  <div class="cell"><h4>Out · dtypes</h4><table><tr><td class="fn">IngestedItem</td><td class="fd">content_sha256, doc_version_sha256, acl_vector, entities: ClauseEntity[span:SpanRef, extractor:versioned, confidence]</td></tr></table></div>
+  <div class="cell"><h4>Semantics</h4><p class="sems">Every fact carries the exact quoted span + doc version hash, so a citation can never drift. ACL vector is copied from the source system at ingest and enforced at retrieval.</p>
+   <p class="fail-note"><b>On failure:</b> hash-dedup skips re-parse; parser crash → per-doc DLQ + alert after 2 retries.</p>
+   <div class="tagrow" style="margin-top:10px"><span class="tag">&#9670; entity confidence floor 0.7 — low-confidence extraction is a review queue item, never pipeline data</span></div>
+   <div class="tagrow" style="margin-top:6px"><span class="tag">object-store/docstore</span><span class="tag">pgvector</span><span class="tag">kafka:ingest</span></div>
+  </div>
+ </div>
+ <div style="padding:10px 18px 16px">
+  <details open><summary>JSON payloads &middot; validated by kurta_schemas.py</summary></details>
+ </div>
+</article>
+<article class="stage" id="S7">
+ <div class="head"><div class="sid"><span class="no">S7</span>Anomaly scoring</div>
+  <div class="svc">feature-builder + model service (IForest/GBM screens)</div></div>
+ <div class="grid3">
+  <div class="cell"><h4>In · dtypes</h4><table><tr><td class="fn">FeatureVector</td><td class="fd">names↔values shape-locked · split_candidate_i8 ∈{0,1}</td></tr></table></div>
+  <div class="cell"><h4>Out · dtypes</h4><table><tr><td class="fn">AnomalyScore</td><td class="fd">score,threshold,verdict ∈ clean|flag|escalate · policy_hit: SpanRef · abstain</td></tr></table></div>
+  <div class="cell"><h4>Semantics</h4><p class="sems">Fuzzy joins (RapidFuzz/MinHash) bind invoice↔PO↔contract first; the model sees numeric features only. A flag without a cited policy clause is invalid by contract — noise may not become an audit finding.</p>
+   <p class="fail-note"><b>On failure:</b> feature drift monitor (PSI) → freeze screen, escalate all in-flight to human.</p>
+   <div class="tagrow" style="margin-top:10px"><span class="tag">&#9670; abstention band |score−threshold|&lt;0.02 → escalate, not guess</span></div>
+   <div class="tagrow" style="margin-top:6px"><span class="tag">postgres:features</span><span class="tag">model-registry (pinned)</span><span class="tag">eval harness</span></div>
+  </div>
+ </div>
+ <div style="padding:10px 18px 16px">
+  <details open><summary>JSON payloads &middot; validated by kurta_schemas.py</summary></details>
+ </div>
+</article>
+<article class="stage" id="S8">
+ <div class="head"><div class="sid"><span class="no">S8</span>Policy decision (OPA)</div>
+  <div class="svc">opa sidecar · Rego bundles, git versioned</div></div>
+ <div class="grid3">
+  <div class="cell"><h4>In · dtypes</h4><table><tr><td class="fn">PolicyInput</td><td class="fd">{subject(+cumulative spend), action{tool,spend,external,touches}, resource{acl}}</td></tr></table></div>
+  <div class="cell"><h4>Out · dtypes</h4><table><tr><td class="fn">PolicyDecision</td><td class="fd">allow · gate ∈ auto|HITL_REQUIRED|DENY · obligations[] · matched_rule · bundle hash</td></tr></table></div>
+  <div class="cell"><h4>Semantics</h4><p class="sems">Same input ⇒ same decision — provable, replayable, testable in CI. Spend ≥ $50k minor floor emits HITL_REQUIRED with co-sign obligations; payroll/legal classes outside clearance emit DENY.</p>
+   <p class="fail-note"><b>On failure:</b> engine down = fail-closed: mutating tools never run without a decision row.</p>
+   <div class="tagrow" style="margin-top:10px"><span class="tag">&#9670; this IS the gate</span></div>
+   <div class="tagrow" style="margin-top:6px"><span class="tag">policy-bundle (sha-locked)</span><span class="tag">postgres:policies</span></div>
+  </div>
+ </div>
+ <div style="padding:10px 18px 16px">
+  <details open><summary>JSON payloads &middot; validated by kurta_schemas.py</summary></details>
+ </div>
+</article>
+<article class="stage" id="S9">
+ <div class="head"><div class="sid"><span class="no">S9</span>Self-correction</div>
+  <div class="svc">executor middleware (recovery policy table)</div></div>
+ <div class="grid3">
+  <div class="cell"><h4>In · dtypes</h4><table><tr><td class="fn">ToolError from S5</td><td class="fd">kind=SCHEMA_DRIFT shown</td></tr></table></div>
+  <div class="cell"><h4>Out · dtypes</h4><table><tr><td class="fn">SelfCorrectionEvent</td><td class="fd">strategy ∈ FIELD_ALIAS_REMAP|ALTERNATE_SOURCE|RETRY_BACKOFF|REPLAN_SUBGRAPH|ESCALATE_HUMAN · rows_revalidated · outcome</td></tr></table></div>
+  <div class="cell"><h4>Semantics</h4><p class="sems">Recovery is an auditable first-class event — this is what makes the K02 &#x27;SELF-CORRECTED&#x27; UI badge honest instead of buried log noise.</p>
+   <p class="fail-note"><b>On failure:</b> RECOVERED→resume · RETRYING→bounded · ESCALATED→S10 with mapping preview.</p>
+   <div class="tagrow" style="margin-top:10px"><span class="tag">&#9670; bounded retries ≤3 then escalate</span></div>
+   <div class="tagrow" style="margin-top:6px"><span class="tag">postgres:field-maps (learning cache)</span><span class="tag">kafka:selfcorrect events</span></div>
+  </div>
+ </div>
+ <div style="padding:10px 18px 16px">
+  <details open><summary>JSON payloads &middot; validated by kurta_schemas.py</summary></details>
+ </div>
+</article>
+<article class="stage" id="S10">
+ <div class="head"><div class="sid"><span class="no">S10</span>HITL approval</div>
+  <div class="svc">temporal signal · approval-api · notify (Slack/email/mobile)</div></div>
+ <div class="grid3">
+  <div class="cell"><h4>In · dtypes</h4><table><tr><td class="fn">ApprovalRequest</td><td class="fd">blast_radius[] (reversible enum) · evidence cites · sha of policy decision · expiry SLA</td></tr></table></div>
+  <div class="cell"><h4>Out · dtypes</h4><table><tr><td class="fn">ApprovalDecision</td><td class="fd">decision enum · signature_sha256 · elapsed_ms (feeds approval-latency SLO)</td></tr></table></div>
+  <div class="cell"><h4>Semantics</h4><p class="sems">The request bundles everything to decide (numbers, checks, downstream writes, expiry); a reasonless rejection is a contract error — rejections must teach the agent.</p>
+   <p class="fail-note"><b>On failure:</b> expiry unactioned → auto-ESCALATE to backup signer, never silent lapse.</p>
+   <div class="tagrow" style="margin-top:10px"><span class="tag">&#9670; min_signatures &amp; co-sign routing from policy</span></div>
+   <div class="tagrow" style="margin-top:6px"><span class="tag">temporal</span><span class="tag">postgres:approvals (aging SLA)</span><span class="tag">docsign envelopes</span></div>
+  </div>
+ </div>
+ <div style="padding:10px 18px 16px">
+  <details open><summary>JSON payloads &middot; validated by kurta_schemas.py</summary></details>
+ </div>
+</article>
+<article class="stage" id="S11">
+ <div class="head"><div class="sid"><span class="no">S11</span>Gated mutation</div>
+  <div class="svc">executor (post-signal) · connector write path</div></div>
+ <div class="grid3">
+  <div class="cell"><h4>In · dtypes</h4><table><tr><td class="fn">(Approved+replan conditions)</td><td class="fd">pre-verified preview</td></tr></table></div>
+  <div class="cell"><h4>Out · dtypes</h4><table><tr><td class="fn">MutationReceipt</td><td class="fd">state ∈ posted|queued|compensated · external_id (PO-9407) · idempotency_key replayed</td></tr></table></div>
+  <div class="cell"><h4>Semantics</h4><p class="sems">Exactly-once via idempotency key; the recorded blast radius is the executed action itself. Failure→compensation workflow, receipt records counter-txn or irreversibility.</p>
+   <p class="fail-note"><b>On failure:</b> external post 409 unknown → reconciliation job, never blind retry.</p>
+   <div class="tagrow" style="margin-top:10px"><span class="tag">&#9670; only reachable with a valid ApprovalDecision</span></div>
+   <div class="tagrow" style="margin-top:6px"><span class="tag">connector APIs</span><span class="tag">kafka:mutations</span><span class="tag">wal audit</span></div>
+  </div>
+ </div>
+ <div style="padding:10px 18px 16px">
+  <details open><summary>JSON payloads &middot; validated by kurta_schemas.py</summary></details>
+ </div>
+</article>
+<article class="stage" id="S12">
+ <div class="head"><div class="sid"><span class="no">S12</span>Trace append (write-path)</div>
+  <div class="svc">trace-writer · append-only store</div></div>
+ <div class="grid3">
+  <div class="cell"><h4>In · dtypes</h4><table><tr><td class="fn">(all upstream steps)</td><td class="fd">events</td></tr></table></div>
+  <div class="cell"><h4>Out · dtypes</h4><table><tr><td class="fn">TraceRow</td><td class="fd">seq · prev_hash · actor · op enum · refs · llm_ctx(model,prompt hash,seed,temp) · cost_usd_micro</td></tr></table></div>
+  <div class="cell"><h4>Semantics</h4><p class="sems">Every decision line pairs WHAT and WHY with refs to payloads — the machine-readable version of K08&#x27;s audit column. Rewriting history breaks the chain; WORM backup.</p>
+   <p class="fail-note"><b>On failure:</b> writer down → executor blocks mutating ops (fail-closed, again).</p>
+   <div class="tagrow" style="margin-top:10px"><span class="tag">&#9670; one row per event ABOVE, prev_hash chain</span></div>
+   <div class="tagrow" style="margin-top:6px"><span class="tag">hash-chained trace store</span><span class="tag">SIEM export</span><span class="tag">langfuse/otel mirror</span></div>
+  </div>
+ </div>
+ <div style="padding:10px 18px 16px">
+  <details open><summary>JSON payloads &middot; validated by kurta_schemas.py</summary></details>
+ </div>
+</article>
+<article class="stage" id="S13">
+ <div class="head"><div class="sid"><span class="no">S13</span>ROI aggregation</div>
+  <div class="svc">nightly job (SQL/dbt) — derived ONLY from trace rows</div></div>
+ <div class="grid3">
+  <div class="cell"><h4>In · dtypes</h4><table><tr><td class="fn">trace window</td><td class="fd">+hr-baseline catalog</td></tr></table></div>
+  <div class="cell"><h4>Out · dtypes</h4><table><tr><td class="fn">RoiAggRow</td><td class="fd">hours_offloaded · p50 approval latency · hitl_accept_rate · selfcorrect_pct · gated_value · run_cost · policy_misses</td></tr></table></div>
+  <div class="cell"><h4>Semantics</h4><p class="sems">value_to_cost_ratio derives here, not in a slide. Approval latency and human-override agreement count as costs — autonomy people don&#x27;t trust has no ROI.</p>
+   <p class="fail-note"><b>On failure:</b> row-count mismatch vs traces → job fails loudly; stale dashboards beat wrong dashboards.</p>
+   <div class="tagrow" style="margin-top:10px"><span class="tag">&#9670; numbers that can&#x27;t be traced to rows don&#x27;t ship</span></div>
+   <div class="tagrow" style="margin-top:6px"><span class="tag">postgres:metrics</span><span class="tag">dashboards/board PDF</span></div>
+  </div>
+ </div>
+ <div style="padding:10px 18px 16px">
+  <details open><summary>JSON payloads &middot; validated by kurta_schemas.py</summary></details>
+ </div>
+</article>
+</section>
+
+<section>
+ <h2><span class="idx">&#10007;</span>What the contracts refuse</h2>
+ <p class="sub">Generated by <code>kurta_negative_cases</code> run against this exact schema file &mdash; messages verbatim.</p>
+ <div class="panel"><table>
+  <tr><th>Illegal input</th><th>Validator response (verbatim)</th></tr>
+  <tr><td><code>naive datetime rejected</code></td><td>&ldquo;Value error, naive datetimes are rejected; UTC aware only&rdquo;</td></tr><tr><td><code>float money rejected</code></td><td>&ldquo;Input should be a valid integer, got a number with a fractional part&rdquo;</td></tr><tr><td><code>ungated mutating step rejected at construction</code></td><td>&ldquo;Value error, a step that mutates state or sends externally must name its policy gate&rdquo;</td></tr><tr><td><code>plan cycle rejected</code></td><td>&ldquo;Value error, plan DAG has a cycle&rdquo;</td></tr><tr><td><code>reject without reason rejected</code></td><td>&ldquo;Value error, rejections without a reason never teach the agent&rdquo;</td></tr><tr><td><code>agent without delegator rejected</code></td><td>&ldquo;Value error, agent actors must name a delegating human identity&rdquo;</td></tr><tr><td><code>row width mismatch rejected</code></td><td>&ldquo;Value error, row 0: 2 cells vs 1 declared dtypes&rdquo;</td></tr><tr><td><code>low-confidence extraction rejected</code></td><td>&ldquo;Input should be greater than or equal to 0.7&rdquo;</td></tr><tr><td><code>low-confidence blocking ambiguity rejected</code></td><td>&ldquo;Value error, blocking ambiguity requires a clarification round, not a plan&rdquo;</td></tr><tr><td><code>expired approval window rejected</code></td><td>&ldquo;Value error, approval expiry must be after creation&rdquo;</td></tr>
+ </table></div>
+</section>
+
+<footer class="foot">
+ Source of truth: <code>kurta_schemas.py</code> &rarr; <code>kurta_workflow_samples.json</code> &middot;
+ refusals: <code>kurta_negative_cases.json</code> &middot; narrative pairing: KURTA wireframe deck (K01&ndash;K09)
+ &middot; &copy; KURTA blueprint &mdash; structure over style, copy provisional.
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "naive datetime rejected": "Value error, naive datetimes are rejected; UTC aware only",
+  "float money rejected": "Input should be a valid integer, got a number with a fractional part",
+  "ungated mutating step rejected at construction": "Value error, a step that mutates state or sends externally must name its policy gate",
+  "plan cycle rejected": "Value error, plan DAG has a cycle",
+  "reject without reason rejected": "Value error, rejections without a reason never teach the agent",
+  "agent without delegator rejected": "Value error, agent actors must name a delegating human identity",
+  "row width mismatch rejected": "Value error, row 0: 2 cells vs 1 declared dtypes",
+  "low-confidence extraction rejected": "Input should be greater than or equal to 0.7",
+  "low-confidence blocking ambiguity rejected": "Value error, blocking ambiguity requires a clarification round, not a plan",
+  "expired approval window rejected": "Value error, approval expiry must be after creation"
+}

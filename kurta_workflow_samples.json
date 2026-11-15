@@ -1,0 +1,611 @@
+{
+  "S1_goal_intake": {
+    "model": "GoalIntake",
+    "note": "input",
+    "sample": {
+      "run_id": "run_01j8y6c2qe5t7wxz3vbnhm9k4p",
+      "tenant_id": "acme_group",
+      "submitted_by": {
+        "kind": "human",
+        "id": "usr_marcelino",
+        "roles": [
+          "ops_lead",
+          "approver_ops"
+        ],
+        "delegator": null
+      },
+      "text": "Find out why Q3 shipping costs spiked and bring me a plan to cut them — talk to procurement before proposing anything we can't fund.",
+      "contexts": [
+        {
+          "kind": "email",
+          "locator": "msgid:<20261009-ops-apac@mailer>",
+          "note": "manager thread"
+        },
+        {
+          "kind": "slack_thread",
+          "locator": "https://acme.slack.com/archives/C0APAC/p17285472000",
+          "note": null
+        }
+      ],
+      "created_at": "2026-11-14T13:30:02Z"
+    }
+  },
+  "S2_goal_spec": {
+    "model": "GoalSpec",
+    "note": "output of parse LLM",
+    "sample": {
+      "schema_version": "goalspec/v1",
+      "run_id": "run_01j8y6c2qe5t7wxz3vbnhm9k4p",
+      "objective": "Quantify the drivers of the Q3 freight cost variance and propose a fundable reduction plan",
+      "deliverable": "findings_report",
+      "deadline": "2026-11-17T17:00:00Z",
+      "budget_cap": {
+        "amount_minor": 50000000,
+        "currency": "USD"
+      },
+      "must_include_human": [
+        {
+          "kind": "human",
+          "id": "usr_proc_lead",
+          "roles": [
+            "procurement"
+          ],
+          "delegator": null
+        }
+      ],
+      "in_scope_systems": [
+        "snowflake",
+        "sap",
+        "jira",
+        "slack",
+        "docstore"
+      ],
+      "out_of_scope": [
+        "payroll",
+        "hr"
+      ],
+      "acceptance_criteria": [
+        "variance attributed to contract clause vs demand with numbers",
+        "every claim cites a policy/contract span with doc version hash",
+        "reduction options priced against Q4 budget lines"
+      ],
+      "parsed_confidence": 0.91,
+      "ambiguity_flags": [
+        {
+          "field": "deadline",
+          "question": "end of business Monday?",
+          "blocking": false
+        }
+      ]
+    }
+  },
+  "S3_compiled_plan": {
+    "model": "CompiledPlan",
+    "note": "output of planner",
+    "sample": {
+      "schema_version": "plan/v1",
+      "run_id": "run_01j8y6c2qe5t7wxz3vbnhm9k4p",
+      "steps": [
+        {
+          "step_id": 1,
+          "op": "snowflake.query",
+          "args_schema_ref": "registry/snowflake.query@v4",
+          "io": {
+            "consumes": [],
+            "produces": [
+              "lane",
+              "freight_spend_usd",
+              "period"
+            ]
+          },
+          "depends_on": [],
+          "mutates_state": false,
+          "spend_minor": null,
+          "gate": null,
+          "max_retries": 3,
+          "est_llm_cost_usd_micro": 4200,
+          "playbook_id": "pbq_freight_variance_v6"
+        },
+        {
+          "step_id": 2,
+          "op": "docparse.ingest",
+          "args_schema_ref": "registry/docparse.ingest@v2",
+          "io": {
+            "consumes": [
+              "step1.lane"
+            ],
+            "produces": [
+              "carrier_clauses"
+            ]
+          },
+          "depends_on": [],
+          "mutates_state": false,
+          "spend_minor": null,
+          "gate": null,
+          "max_retries": 3,
+          "est_llm_cost_usd_micro": 0,
+          "playbook_id": null
+        },
+        {
+          "step_id": 3,
+          "op": "compute.forecast",
+          "args_schema_ref": "registry/compute.forecast@v3",
+          "io": {
+            "consumes": [
+              "step1.freight_spend_usd",
+              "step2.carrier_clauses"
+            ],
+            "produces": [
+              "attribution_table",
+              "savings_plan"
+            ]
+          },
+          "depends_on": [
+            1,
+            2
+          ],
+          "mutates_state": false,
+          "spend_minor": null,
+          "gate": null,
+          "max_retries": 3,
+          "est_llm_cost_usd_micro": 0,
+          "playbook_id": null
+        },
+        {
+          "step_id": 4,
+          "op": "netsuite.po.create",
+          "args_schema_ref": "registry/netsuite.po.create@v3",
+          "io": {
+            "consumes": [
+              "step3.savings_plan.renewal_sku"
+            ],
+            "produces": []
+          },
+          "depends_on": [
+            3
+          ],
+          "mutates_state": true,
+          "spend_minor": {
+            "amount_minor": 14200000,
+            "currency": "USD"
+          },
+          "gate": "finance/spend_50k_co_sign",
+          "max_retries": 0,
+          "est_llm_cost_usd_micro": 0,
+          "playbook_id": null
+        },
+        {
+          "step_id": 5,
+          "op": "slack.post.draft",
+          "args_schema_ref": "registry/slack.post.draft@v2",
+          "io": {
+            "consumes": [
+              "step4.po_id",
+              "step3.attribution_table"
+            ],
+            "produces": []
+          },
+          "depends_on": [
+            4
+          ],
+          "mutates_state": false,
+          "spend_minor": null,
+          "gate": null,
+          "max_retries": 3,
+          "est_llm_cost_usd_micro": 0,
+          "playbook_id": null
+        }
+      ],
+      "goal_sha256": "f7968f03ce0d47471568ff9ce82b4b48362adfdee81e59a62ea2b8caf351b637"
+    }
+  },
+  "S4_plan_validation": {
+    "model": "CompiledPlan",
+    "note": "rules run over S3 — cycle/mutate/gate checks",
+    "sample": {
+      "validation": "passes on S3 payload"
+    }
+  },
+  "S5_tool_request": {
+    "model": "ToolCallRequest",
+    "note": "input to connector fabric",
+    "sample": {
+      "call_id": "call_01j8y6d9m1k8",
+      "run_id": "run_01j8y6c2qe5t7wxz3vbnhm9k4p",
+      "step_id": 1,
+      "tool": "snowflake.query",
+      "args": {
+        "role": "cur_finance_ro",
+        "sql_template_id": "freight_variance_q3_v2",
+        "params": {
+          "period": "2026Q3",
+          "base": "2026Q2",
+          "lanes": "APAC"
+        },
+        "row_limit": 100000
+      },
+      "actor": {
+        "kind": "agent",
+        "id": "agent_auditor_2",
+        "roles": [
+          "finance_agent"
+        ],
+        "delegator": "usr_marcelino"
+      },
+      "idempotency_key": "idem_s1_q3var",
+      "max_rows": 100000,
+      "timeout_ms": 30000
+    }
+  },
+  "S5_tool_result": {
+    "model": "ToolResult",
+    "note": "output of connector fabric",
+    "sample": {
+      "call_id": "call_01j8y6d9m1k8",
+      "ok": true,
+      "data": {
+        "columns_dtypes": [
+          {
+            "name": "lane",
+            "arrow_type": "string",
+            "nullable": false
+          },
+          {
+            "name": "period",
+            "arrow_type": "string",
+            "nullable": false
+          },
+          {
+            "name": "freight_spend_usd",
+            "arrow_type": "decimal128(18,4)",
+            "nullable": true
+          },
+          {
+            "name": "is_surcharge_bearing",
+            "arrow_type": "bool",
+            "nullable": false
+          },
+          {
+            "name": "captured_at",
+            "arrow_type": "timestamp[us, tz=UTC]",
+            "nullable": false
+          }
+        ],
+        "rows": [
+          [
+            "CN-NL->DE",
+            "2026Q3",
+            1284509.24,
+            true,
+            "2026-11-14T14:02:11Z"
+          ],
+          [
+            "CN-NL->DE",
+            "2026Q2",
+            1148002.1,
+            false,
+            "2026-11-14T14:02:11Z"
+          ],
+          [
+            "SG->FRA",
+            "2026Q3",
+            452118.77,
+            true,
+            "2026-11-14T14:02:11Z"
+          ]
+        ]
+      },
+      "scalar": null,
+      "error": null,
+      "observed_schema_version": "warehouse_fact_freight.v11",
+      "usage": {}
+    }
+  },
+  "S6_ingested_item": {
+    "model": "IngestedItem",
+    "note": "output of doc-parse",
+    "sample": {
+      "source_ref": {
+        "kind": "document",
+        "locator": "docstore://carrier_contracts/gilead_2026.pdf",
+        "note": null
+      },
+      "content_sha256": "a6b1bc8c1d8d2c029e6bae35437e7497d662a8dee4cd0126e3c114a1d0cfce03",
+      "doc_version_sha256": "c8fab9c7ab0bb8903b4db10f331e157b8dd1fb91e3d390a71e375409690db6b3",
+      "acl_vector": [
+        "scope:finance",
+        "scope:legal_read",
+        "deny:hr",
+        "deny:payroll"
+      ],
+      "entities": [
+        {
+          "field": "unit_price_cap",
+          "value": "42.00",
+          "dtype_name": "decimal",
+          "span": {
+            "doc_id": "gilead_2026_contract",
+            "doc_version_sha256": "c8fab9c7ab0bb8903b4db10f331e157b8dd1fb91e3d390a71e375409690db6b3",
+            "locator": "p.4 §3.1 lines 12-18",
+            "quoted_text": "unit price fixed at $42, adjustments require CFO countersignature"
+          },
+          "extractor": "qwen-doc-extract/v3.2",
+          "confidence": 0.99
+        },
+        {
+          "field": "surcharge_clause_present",
+          "value": true,
+          "dtype_name": "bool",
+          "span": {
+            "doc_id": "gilead_2026_contract",
+            "doc_version_sha256": "c8fab9c7ab0bb8903b4db10f331e157b8dd1fb91e3d390a71e375409690db6b3",
+            "locator": "p.9 §4.2",
+            "quoted_text": "fuel surcharge applies at published index rate to base lanes"
+          },
+          "extractor": "qwen-doc-extract/v3.2",
+          "confidence": 0.97
+        }
+      ],
+      "redactions_applied": [
+        "PII"
+      ],
+      "parsed_at": "2026-11-14T14:05:40Z"
+    }
+  },
+  "S7_feature_vector": {
+    "model": "FeatureVector",
+    "note": "input to anomaly models",
+    "sample": {
+      "feature_names": [
+        "amount_delta_pct",
+        "qty_delta_pct",
+        "timing_bucket_z",
+        "rate_vs_clause_cap",
+        "split_floor_distance"
+      ],
+      "values_f64": [
+        14.3,
+        1.2,
+        0.8,
+        12.5,
+        0.03
+      ],
+      "row_key": "INV-7719",
+      "split_candidate_i8": 0
+    }
+  },
+  "S7_anomaly_score": {
+    "model": "AnomalyScore",
+    "note": "output of screen",
+    "sample": {
+      "model_id": "iforest_invoice_screen@2026-09",
+      "score": 0.98,
+      "threshold": 0.8,
+      "verdict": "flag",
+      "policy_hit": {
+        "doc_id": "gilead_2026_contract",
+        "doc_version_sha256": "c8fab9c7ab0bb8903b4db10f331e157b8dd1fb91e3d390a71e375409690db6b3",
+        "locator": "p.4 §3.1",
+        "quoted_text": "unit price fixed at $42"
+      },
+      "human_explanation": "Unit price $48.00 exceeds contract cap $42.00 by 14% on 5,200 units; invoice is otherwise well-formed — the finding is contract, not fraud.",
+      "abstain": false
+    }
+  },
+  "S8_policy_input": {
+    "model": "PolicyInput",
+    "note": "input to OPA",
+    "sample": {
+      "subject": {
+        "agent_id": "agent_auditor_2",
+        "roles": [
+          "finance_agent"
+        ],
+        "delegator": "usr_marcelino",
+        "spend_approved_cum_minor": 0,
+        "clearance": [
+          "scope:finance"
+        ]
+      },
+      "action": {
+        "tool": "netsuite.po.create",
+        "spend": {
+          "amount_minor": 14200000,
+          "currency": "USD"
+        },
+        "external_delivery": true,
+        "touches": [
+          "vendor_terms"
+        ]
+      },
+      "resource": {
+        "acl_vector": [
+          "scope:finance",
+          "scope:vendor"
+        ],
+        "system": "netsuite"
+      }
+    }
+  },
+  "S8_policy_decision": {
+    "model": "PolicyDecision",
+    "note": "output of OPA",
+    "sample": {
+      "schema_version": "decision/v1",
+      "policy_bundle_sha256": "7cca6fadb18a3ce5d1784637e09e85ee1d40bb38a601b9e2e1538f54045629d3",
+      "allow": true,
+      "gate": "HITL_REQUIRED",
+      "obligations": [
+        "co_sign:usr_cfinance",
+        "sign:sha256-preimage",
+        "audit_append:trace"
+      ],
+      "reason": "spend_gate: 14200000 minor >= 5000000 minor -> human approval required; external_delivery requires co-signer per governance/hitl.yaml@v12",
+      "matched_rule": "finance/spend_50k_co_sign"
+    }
+  },
+  "S9_selfcorrect_event": {
+    "model": "SelfCorrectionEvent",
+    "note": "emitted by executor",
+    "sample": {
+      "run_id": "run_01j8y6c2qe5t7wxz3vbnhm9k4p",
+      "step_id": 6,
+      "trigger": {
+        "kind": "SCHEMA_DRIFT",
+        "detail": "Salesforce field shipment_event dropped from schema",
+        "retry_after_ms": null,
+        "observed_schema_version": "sobject_shipment_event__r.v3",
+        "expected_schema_version": "sobject_shipment_event__r.v2"
+      },
+      "strategy": "FIELD_ALIAS_REMAP",
+      "mapping_detail": {
+        "from": "shipment_event.v3",
+        "to": "v2 compat read",
+        "confidence": 0.993
+      },
+      "rows_revalidated_i64": 142,
+      "outcome": "RECOVERED",
+      "extra_latency_ms": 870
+    }
+  },
+  "S10_approval_request": {
+    "model": "ApprovalRequest",
+    "note": "emitted by gate",
+    "sample": {
+      "approval_id": "appr_01j8y71wze8q",
+      "run_id": "run_01j8y6c2qe5t7wxz3vbnhm9k4p",
+      "step_id": 4,
+      "title": "PO-9407 renewal: Northwind $142,000/yr freight agreement",
+      "recommendation": "approve",
+      "recommendation_basis": "expiring clause §4 runs 8.2% over market; renewal caps surcharge — net -$21k/quarter",
+      "evidence": {
+        "pre_flight": [
+          "duns+sanctions:ok",
+          "budget_line:PDX-208 holds",
+          "quotes:2 attached"
+        ],
+        "cites": [
+          {
+            "doc_id": "northwind_exp_2026",
+            "doc_version_sha256": "03b4877c9bb6c21a0c471573464679a4f64bcbc84a01b678b523da941ec2f2b0",
+            "locator": "§4",
+            "quoted_text": "base rate schedule Q4-2025"
+          }
+        ]
+      },
+      "blast_radius": [
+        {
+          "tool": "docsign.envelope_send",
+          "effect": "signs agreement — irreversible on counterparty signature",
+          "reversible": "no"
+        },
+        {
+          "tool": "netsuite.po.create",
+          "effect": "posts PO-9407 $142,000",
+          "reversible": "with_counter_txn"
+        },
+        {
+          "tool": "slack.post.publish",
+          "effect": "notifies #ops-apac",
+          "reversible": "yes"
+        }
+      ],
+      "spend": {
+        "amount_minor": 14200000,
+        "currency": "USD"
+      },
+      "policy_decision_sha256": "3e082df82872b6c36323a44969ec1450c81cfa6e4b803d990c5d4d0a82865a89",
+      "required_signers": [
+        "usr_marcelino",
+        "usr_cfinance"
+      ],
+      "min_signatures": 2,
+      "created_at": "2026-11-14T14:12:44Z",
+      "expires_at": "2026-11-14T20:12:44Z"
+    }
+  },
+  "S10_approval_decision": {
+    "model": "ApprovalDecision",
+    "note": "signed human output",
+    "sample": {
+      "approval_id": "appr_01j8y71wze8q",
+      "decision": "APPROVE",
+      "conditions_text": null,
+      "signer": {
+        "kind": "human",
+        "id": "usr_marcelino",
+        "roles": [
+          "ops_lead",
+          "approver_ops"
+        ],
+        "delegator": null
+      },
+      "signature_sha256": "b1f313e60582d16aa8e3bb76e38d681df93ff870e285994bda06a047e466e558",
+      "signed_at": "2026-11-14T14:35:10Z",
+      "elapsed_since_request_ms": 1346000
+    }
+  },
+  "S11_mutation_receipt": {
+    "model": "MutationReceipt",
+    "note": "connector after gated write",
+    "sample": {
+      "receipt_id": "rcpt_01j8y73xk2m0",
+      "approval_decision_sha256": "ae0fb09ae6d728855c649ca6581c5463aee14d1d34967aea03d69ff7b28cd277",
+      "tool": "netsuite.po.create",
+      "external_id": "PO-9407",
+      "state": "posted",
+      "idempotency_key": "idem_po9407_v1",
+      "observed_schema_version": "netsuite_po.v9",
+      "mutated_at": "2026-11-14T14:35:12Z"
+    }
+  },
+  "S12_trace_row": {
+    "model": "TraceRow",
+    "note": "append-only audit",
+    "sample": {
+      "seq": 1042,
+      "prev_hash_sha256": "f69ed6ae71c6afa752a2b4d07962e3bd122bd7551f75260bba9eebe8e5d904e1",
+      "ts": "2026-11-14T14:05:40Z",
+      "run_id": "run_01j8y6c2qe5t7wxz3vbnhm9k4p",
+      "step_id": 2,
+      "actor": {
+        "kind": "agent",
+        "id": "agent_auditor_2",
+        "roles": [
+          "finance_agent"
+        ],
+        "delegator": "usr_marcelino"
+      },
+      "op": "ingest.parse",
+      "refs": {
+        "ingested_item": "sha256:a44d...e",
+        "spans": "3",
+        "acl": "4 scopes"
+      },
+      "llm_ctx": {
+        "model_version": "qwen-doc-extract/v3.2",
+        "prompt_sha256": "7016f6a43eceaae7d8638fb68175fc3923f7ceafa270788252b04e684ae1580e",
+        "temp": 0.0,
+        "seed": 7
+      },
+      "cost_usd_micro": 21400
+    }
+  },
+  "S13_roi_row": {
+    "model": "RoiAggRow",
+    "note": "nightly aggregate",
+    "sample": {
+      "agent_id": "agent_auditor_2",
+      "period": "quarterly",
+      "started_at": "2026-07-01T00:00:00Z",
+      "hours_offloaded_dec": 5056.0,
+      "runs_completed_i64": 8412,
+      "approval_latency_p50_s": 1320.0,
+      "hitl_acceptance_rate": 0.92,
+      "selfcorrect_recovered_pct": 88.4,
+      "gated_value_usd_minor_i64": 18400000,
+      "run_cost_usd_micro_i64": 96000000,
+      "policy_misses_i64": 0
+    }
+  }
+}
